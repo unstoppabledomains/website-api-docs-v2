@@ -1,0 +1,457 @@
+openapi: 3.0.0
+info:
+  title: Unstoppable Resellers API
+  description: 'Reseller API requires you to be an authorized reseller.
+    To get registered as reseller and get Stripe payment credentials check the following [guide](https://docs.unstoppabledomains.com/sell-domains-to-users-in-my-app/register-as-reseller).'
+  contact:
+    email: dev@unstoppabledomains.com
+  version: 2.0.0
+externalDocs:
+  description: Unstoppable Domains documentation
+  url: https://docs.unstoppabledomains.com
+servers:
+  - url: https://unstoppabledomains.com/api/v2/resellers
+tags:
+  - name: orders
+    description: Create an order and get the status of orders
+  - name: domains
+    description: Check domain availability and suggestions for purchase or claim
+paths:
+  /{resellerID}/domains/{domainName}:
+    parameters:
+      - name: resellerID
+        in: path
+        description: Resellers ID obtained from UD team after registration as a Reseller
+        required: true
+        schema:
+          type: string
+          example: reseller1342
+      - name: domainName
+        in: path
+        required: true
+        schema:
+          type: string
+          example: beresnev.crypto
+    get:
+      tags:
+        - domains
+      summary: Domain name availability
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+        '401':
+          description: Reseller not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+  /{resellerID}/domains/suggestions:
+    parameters:
+      - name: resellerID
+        in: path
+        description: ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: udtesting
+      - name: search
+        in: query
+        description: Keywords that will be used to build domain suggestings. Can be TLD or domain name.
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: array
+          example:
+            - 'test.crypto'
+            - 'hello'
+            - 'domains.888'
+          items:
+            type: string
+            example: 'ryan.crypto'
+    get:
+      tags:
+        - domains
+      summary: Get domains variations
+      description:
+        This endpoint is used to provide domains variants based on provided domains and label. Method will provide domains similar to domains provided in domains parameter.
+      responses:
+        '200':
+          description: Valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainSuggestions'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+        '401':
+          description: Reseller not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+  /{resellerID}/domains/suggestions/free:
+    parameters:
+      - name: resellerID
+        in: path
+        description: ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: udtesting
+    get:
+      tags:
+        - domains
+      summary: Get free domains variations
+      description:
+        This endpoint is used to provide free domains suggestions if Resellers is eligible for free domains. If Reseller isn't eligible for free domains suggestions - endpoint will return error.
+      responses:
+        '200':
+          description: Valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainSuggestions'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+        '401':
+          description: Reseller not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+  /{resellerID}/orders:
+    parameters:
+      - name: resellerID
+        in: path
+        description: ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: reseller123
+    post:
+      security:
+        - {}
+        - ApiSecret: []
+      tags:
+        - orders
+      summary: Buy a domain or claim for free
+      description:
+        Authentication is optional for this endpoint and it's required only if using specific payment types (free, payback). If Authentication is used - API should be called from secure server environment.
+
+        This API endpoint is used for buying domains from UD. The blockchain needs time before a transaction is mined. In rare cases, it is possible for someone to front run your purchase, which would result in an order being cancelled. We expect this to happen in less than 1 out of 10000 cases. Please make sure you are using the 'Order Status' endpoint and wait until the transaction is mined.
+
+        Endpoint requires either email or owner address. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainOrderRequest'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+        '401':
+          description: Reseller not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+  /{resellerID}/orders/{orderNumber}:
+    parameters:
+      - name: resellerID
+        in: path
+        description: ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: reseller123
+      - name: orderNumber
+        in: path
+        description: ID of the order
+        required: true
+        schema:
+          type: string
+          example: -Lm9wiYytgrpf4YCWYv6
+    get:
+      description: Use this endpoint to pull the status of the order
+      summary: Get order status by order number
+      tags:
+        - orders
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainOrderResponse'
+        '401':
+          description: Reseller not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+        '404':
+          description: Order Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+components:
+  schemas:
+    FreePayment:
+      type: object
+      properties:
+        method:
+          type: string
+          enum:
+            - 'free'
+    DomainOrderRequest:
+      type: object
+      properties:
+        payment:
+          type: object
+          anyOf:
+            - $ref: '#/components/schemas/FreePayment'
+        domains:
+          type: array
+          items:
+            type: object
+            required:
+              - 'name'
+            properties:
+              name:
+                type: string
+                example: matt.dao
+                description: Domain name
+              owner:
+                type: string
+                example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+                description: Domain recipient wallet address. Email or owner should be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address.
+              email:
+                type: string
+                example: matt@unstoppabledomains.com
+                description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain receiveк. If email is provided - domain will be linked to email address and could be claimed on chain later.
+              records:
+                description: Mint domain with predefined records. Requires owner field.
+                externalDocs:
+                  description: Domain records reference
+                  url: https://docs.unstoppabledomains.com/domain-registry-essentials/records-reference
+                type: object
+                additionalProperties:
+                  type: string
+                example:
+                  crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+                  crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+    DomainOrderResponse:
+      type: object
+      properties:
+        orderNumber:
+          type: string
+          description: orderID used for later status check
+          example: -Lm9wiYytgrpf4YCWYv6
+        payment:
+          anyOf:
+            - $ref: '#/components/schemas/FreePayment'
+        total:
+          type: integer
+          description: Total price in USD Cents. For example $10 = 1000.
+          example: 0
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: matt.dao
+                description: Domain name
+              owner:
+                type: string
+                description: Recipient address
+                example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+              networkId:
+                type: number
+                example: 1
+                description: Id of blockchain network (mainnet or testnet)
+              blockchain:
+                type: string
+                description: Which chain is being used to mint a domain
+                example: 'MATIC'
+                enum:
+                  - 'MATIC'
+                  - 'ETH'
+                  - 'ZIL'
+              transactionHash:
+                type: string
+                description: Hash of minting transaction
+                example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
+              isMined:
+                type: boolean
+                example: false
+                description: Is domain minting transaciton completed and included in block
+    DomainSuggestions:
+      type: array
+      example:
+        - name: thetest.crypto
+          price: 20000
+        - name: hellos.crypto
+          price: 20000
+        - name: thedomains.888
+          price: 200000
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: Domain name
+            example: matt.crypto
+            nullable: false
+          price:
+            description: 'Domain price in USD cents. For example 20000 cents = 200 USD'
+            type: integer
+            example: 20000
+            nullable: false
+    Domain:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Domain name
+          example: matt.crypto
+        owner:
+          type: string
+          description: Wallet address of domain owner if exists
+          nullable: true
+          example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+        registered:
+          type: boolean
+          description: Information if a domain is registered or not
+          example: false
+        protected:
+          type: boolean
+          description: Information if a domain is protected or not
+          example: false
+        price:
+          description: Domain price in USD Cents. For example $10 = 1000. Might be null if domain is not available for sale.
+          type: integer
+          example: 1000
+          nullable: true
+        availableForFree:
+          description: Whether domain is available for free for the Reseller
+          type: boolean
+          example: false
+        test:
+          description: Whether domain is in test namespace
+          type: boolean
+          example: true
+    GeneralError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BasicError'
+    GeneralResellerNotFound:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResellerNotFoundError'
+    GeneralNotFoundError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotFoundError'
+    BasicError:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: 'ERROR_CODE'
+        message:
+          type: string
+          description: User friendly description of above code
+          example: 'Error code explanation'
+        field:
+          type: string
+          description: Estimate error field
+          example: 'some field'
+        value:
+          description: Value of error field
+          example: 'some value'
+        status:
+          type: number
+          description: Status code of the response
+          example: 400
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: 'Not Found'
+            status:
+              type: number
+              example: 404
+    ResellerNotFoundError:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: 'RESELLER_NOT_FOUND'
+        message:
+          type: string
+          description: User friendly description of above code
+          example: 'Reseller ID not found'
+        field:
+          type: string
+          description: Estimate error field
+          example: null
+        value:
+          description: Value of error field
+          example: null
+        status:
+          type: number
+          description: Status code of the response
+          example: 401
+  securitySchemes:
+    ApiSecret:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
