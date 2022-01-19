@@ -451,7 +451,6 @@ components:
       type: string
       description: Which chain is being used to mint a domain
       example: 'MATIC'
-      default: 'MATIC'
       enum:
         - 'MATIC'
         - 'ETH'
