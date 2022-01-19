@@ -116,7 +116,7 @@ paths:
       - name: search
         in: query
         description: Keywords that will be used to build FREE domain suggestions. Can be TLD or domain name.
-        required: true
+        required: false
         style: form
         explode: true
         schema:
