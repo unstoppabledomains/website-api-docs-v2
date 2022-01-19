@@ -42,7 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Domain'
+                $ref: '#/components/schemas/DomainAvailabilityResponse'
         '400':
           description: Bad Request
           content:
@@ -66,7 +66,7 @@ paths:
           example: udtesting
       - name: search
         in: query
-        description: Keywords that will be used to build domain suggestings. Can be TLD or domain name.
+        description: Keywords that will be used to build domain suggestions. Can be TLD or domain name.
         required: true
         style: form
         explode: true
@@ -82,7 +82,7 @@ paths:
     get:
       tags:
         - domains
-      summary: Get domains variations
+      summary: Get domains suggestions
       description:
         This endpoint is used to provide domains variants based on provided domains and label. Method will provide domains similar to domains provided in domains parameter.
       responses:
@@ -113,10 +113,25 @@ paths:
         schema:
           type: string
           example: udtesting
+      - name: search
+        in: query
+        description: Keywords that will be used to build FREE domain suggestions. Can be TLD or domain name.
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: array
+          example:
+            - 'fancyfox123.crypto'
+            - 'firstname'
+            - 'domainsforfree1.888'
+          items:
+            type: string
+            example: 'ryan.crypto'          
     get:
       tags:
         - domains
-      summary: Get free domains variations
+      summary: Get free domains suggestions
       description:
         This endpoint is used to provide free domains suggestions if Resellers is eligible for free domains. If Reseller isn't eligible for free domains suggestions - endpoint will return error.
       responses:
@@ -224,7 +239,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundError'
+                $ref: '#/components/schemas/GeneralNotFoundError'
 components:
   schemas:
     FreePayment:
@@ -252,20 +267,23 @@ components:
                 type: string
                 example: matt.dao
                 description: Domain name
-              owner:
+              ownerAddress:
                 type: string
                 example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
                 description: Domain recipient wallet address. Email or owner should be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address.
+                nullable: true
               email:
                 type: string
                 example: matt@unstoppabledomains.com
                 description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain receiveк. If email is provided - domain will be linked to email address and could be claimed on chain later.
-              records:
+                nullable: true
+              resolution:
                 description: Mint domain with predefined records. Requires owner field.
                 externalDocs:
                   description: Domain records reference
                   url: https://docs.unstoppabledomains.com/domain-registry-essentials/records-reference
                 type: object
+                nullable: true
                 additionalProperties:
                   type: string
                 example:
@@ -290,34 +308,37 @@ components:
           items:
             type: object
             properties:
-              name:
-                type: string
-                example: matt.dao
-                description: Domain name
-              owner:
-                type: string
-                description: Recipient address
-                example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-              networkId:
-                type: number
-                example: 1
-                description: Id of blockchain network (mainnet or testnet)
-              blockchain:
-                type: string
-                description: Which chain is being used to mint a domain
-                example: 'MATIC'
-                enum:
-                  - 'MATIC'
-                  - 'ETH'
-                  - 'ZIL'
-              transactionHash:
-                type: string
-                description: Hash of minting transaction
-                example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
-              isMined:
-                type: boolean
-                example: false
-                description: Is domain minting transaciton completed and included in block
+              domain:
+                $ref: '#/components/schemas/Domain'
+              mintingTransaction:
+                type: object
+                properties:
+                  id: 
+                    type: number
+                    example: 101
+                    description: Transaction identifier in Unstoppable system
+                  blockchain:
+                    $ref: '#/components/schemas/Blockchain'
+                  networkId:
+                    type: number
+                    example: 1
+                    description: Id of blockchain network (mainnet or testnet)
+                  hash:
+                    type: string
+                    description: Hash of minting transaction
+                    example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
+                  blockExplorerUrl:
+                    type: string
+                    description: A link to track transaction status
+                    example: 'https://etherscan.io/tx/0x5698544cecaa05f7d155ff59fea48ef28cbd72068c7c3817987a19816d74fb9b'
+                  statusGroup:
+                    type: string
+                    description: Transaction status
+                    example: Pending
+                    enum:
+                      - Pending
+                      - Failed
+                      - Completed
     DomainSuggestions:
       type: array
       example:
@@ -340,60 +361,122 @@ components:
             type: integer
             example: 20000
             nullable: false
-    Domain:
+    Domain: 
       type: object
       properties:
+        id: 
+          type: number
+          example: 1001
+          description: Id of entity
         name:
           type: string
+          example: matt.dao
           description: Domain name
-          example: matt.crypto
-        owner:
+        ownerAddress:
           type: string
-          description: Wallet address of domain owner if exists
-          nullable: true
+          description: Recipient address
           example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-        registered:
-          type: boolean
-          description: Information if a domain is registered or not
-          example: false
-        protected:
-          type: boolean
-          description: Information if a domain is protected or not
-          example: false
-        price:
-          description: Domain price in USD Cents. For example $10 = 1000. Might be null if domain is not available for sale.
-          type: integer
-          example: 1000
           nullable: true
-        availableForFree:
-          description: Whether domain is available for free for the Reseller
-          type: boolean
-          example: false
-        test:
-          description: Whether domain is in test namespace
+        resolver:
+          type: string
+          nullable: true
+          description: Resolver address
+          example: '0x049aba7510f45BA5b64ea9E658E342F904DB358D'
+        registryAddress:
+          type: string
+          description: Registry address
+          example: '0x049aba7510f45BA5b64ea9E658E342F904DB358D'
+          nullable: true
+        networkId:
+          type: number
+          example: 1
+          description: Id of blockchain network (mainnet or testnet)
+        resolution:
+          description: Mint domain with predefined records. Requires owner field.
+          externalDocs:
+            description: Domain records reference
+            url: https://docs.unstoppabledomains.com/domain-registry-essentials/records-reference
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+          example:
+            crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+            crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'         
+        blockchain:
+          $ref: '#/components/schemas/Blockchain'
+        freeToClaim:
           type: boolean
           example: true
-    GeneralError:
+          default: true
+          description: 'Whether domain claiming fee will be paid by Unstoppable Domains'
+        node:
+          type: string
+          description: 'Domain name hash'
+          example: '0x756e4e998dbffd803c21d23b06cd855cdc7a4b57706c95964a37e24b47c10fc9'
+          externalDocs:
+            description: 'Namehashing essentials'
+            url: https://docs.unstoppabledomains.com/domain-registry-essentials/namehashing
+      
+    DomainAvailabilityResponse:
       type: object
       properties:
-        errors:
+        domain:
+          $ref: '#/components/schemas/Domain'
+        availability:
+          type: object
+          properties:
+            registered:
+              type: boolean
+              description: Information if a domain is registered or not
+              example: false
+            protected:
+              type: boolean
+              description: Information if a domain is protected or not
+              example: false
+            price:
+              description: Domain price in USD Cents. For example $10 = 1000. Might be null if domain is not available for sale.
+              type: integer
+              example: 1000
+              nullable: true
+            availableForFree:
+              description: Whether domain is available for free for the Reseller
+              type: boolean
+              example: false
+            test:
+              description: Whether domain is in test namespace
+              type: boolean
+              example: true
+    Blockchain:
+      type: string
+      description: Which chain is being used to mint a domain
+      example: 'MATIC'
+      enum:
+        - 'MATIC'
+        - 'ETH'
+        - 'ZIL'
+    GeneralError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          $ref: '#/components/schemas/BasicError'
+        constraints:
+          nullable: true
           type: array
           items:
             $ref: '#/components/schemas/BasicError'
     GeneralResellerNotFound:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResellerNotFoundError'
+        error:
+          $ref: '#/components/schemas/ResellerNotFoundError'
     GeneralNotFoundError:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotFoundError'
+        error:
+          $ref: '#/components/schemas/NotFoundError'
     BasicError:
       type: object
       properties:
@@ -419,15 +502,22 @@ components:
     NotFoundError:
       type: object
       properties:
-        error:
-          type: object
-          properties:
-            message:
-              type: string
-              example: 'Not Found'
-            status:
-              type: number
-              example: 404
+        code: 
+          type: string
+          example: 'NOT_FOUND'
+        message:
+          type: string
+          example: 'Not Found'
+        field:
+          type: string
+          description: Estimate error field
+          example: null
+        value:
+          description: Value of error field
+          example: null          
+        status:
+          type: number
+          example: 404
     ResellerNotFoundError:
       type: object
       properties:
