@@ -67,7 +67,7 @@ paths:
       - name: search
         in: query
         description: Keywords that will be used to build domain suggestions. Can be TLD or domain name.
-        required: true
+        required: false
         style: form
         explode: true
         schema:
@@ -79,6 +79,21 @@ paths:
           items:
             type: string
             example: 'ryan.crypto'
+      - name: tlds
+        in: query
+        description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          example:
+            - 'crypto'
+            - 'nft'
+            - '888'
+          items:
+            type: string
+            example: 'dao'
     get:
       tags:
         - domains
@@ -128,6 +143,21 @@ paths:
           items:
             type: string
             example: 'ryan.crypto'          
+      - name: tlds
+        in: query
+        description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          example:
+            - 'crypto'
+            - 'nft'
+            - '888'
+          items:
+            type: string
+            example: 'dao'      
     get:
       tags:
         - domains
