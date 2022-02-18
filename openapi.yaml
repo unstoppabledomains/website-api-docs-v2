@@ -183,6 +183,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
+  /{resellerID}/domains/{domainName}/reserve:
+    post:
+      summary: Reverse free domain name for period of time
+      description: Reverse free domain name for external user identifier. Usually it's a user identifier or email in a resellers system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
+      security:
+        - ApiSecret: []
+      parameters:
+      - name: resellerID
+        in: path
+        description: Resellers ID obtained from UD team after registration as a Reseller
+        required: true
+        schema:
+          type: string
+          example: reseller1342
+      - name: domainName
+        in: path
+        required: true
+        schema:
+          type: string
+          example: beresnev.crypto
+      tags:
+        - domains
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainReverseRequest'    
+      responses:
+        '200':
+          description: Valid
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+        '401':
+          description: Reseller not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
   /{resellerID}/orders:
     parameters:
       - name: resellerID
@@ -272,6 +315,13 @@ paths:
                 $ref: '#/components/schemas/GeneralNotFoundError'
 components:
   schemas:
+    DomainReverseRequest:
+      type: object
+      properties:
+        resellerIdentityKey:
+          type: string
+          example: 'example@user.com'
+          description: 'Unique external identifier of user. Could by ANY string value. Unstoppable will try to match internal and external user id.'
     FreePayment:
       type: object
       properties:
@@ -319,6 +369,10 @@ components:
                 example:
                   crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
                   crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+              resellerIdentityKey: 
+                type: string
+                nullable: true
+                description: Field is required if domain was reserved. Value should be the same as it was when domain was reserved.
     DomainOrderResponse:
       type: object
       properties:
