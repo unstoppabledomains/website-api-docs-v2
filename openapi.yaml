@@ -185,8 +185,8 @@ paths:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
   /{resellerID}/domains/{domainName}/reserve:
     post:
-      summary: Reverse free domain name for period of time
-      description: Reverse free domain name for external user identifier. Usually it's a user identifier or email in a resellers system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
+      summary: Reserve free domain name for period of time
+      description: Reserve free domain name for external user identifier. Usually it's a user identifier or email in a resellers system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
       security:
         - ApiSecret: []
       parameters:
