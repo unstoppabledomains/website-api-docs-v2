@@ -324,7 +324,7 @@ components:
           description: 'Unique external identifier of user. Could by ANY string value. Unstoppable will try to match internal and external user id.'
     OrderPayment:
       type: object
-      description: Requests a free domain
+      description: Payment type and parameters
       properties:
         method:
           type: string
