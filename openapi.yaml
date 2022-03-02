@@ -322,20 +322,42 @@ components:
           type: string
           example: 'example@user.com'
           description: 'Unique external identifier of user. Could by ANY string value. Unstoppable will try to match internal and external user id.'
-    FreePayment:
+    OrderPayment:
       type: object
+      description: Requests a free domain
       properties:
         method:
           type: string
           enum:
             - 'free'
+            - 'coinbase'
+            - 'stripe'
+        properties:
+          description: Additional payment method properties
+          anyOf:
+            - $ref: '#/components/schemas/FreePaymentProperties'
+            - $ref: '#/components/schemas/StripePaymentProperties'
+            - $ref: '#/components/schemas/CoinbasePaymentProperties'
+      example:
+        method: stripe
+        properties: 
+          tokenId: tok_1FAeVFG8PQyZCUJhJp7emswP
+    FreePaymentProperties:
+      type: object
+      description: Properties for the free payment method
+    CoinbasePaymentProperties:
+      type: object
+      description: Properties for the stripe payment method
+    StripePaymentProperties:
+      type: object
+      description: Properties for the stripe payment method
+      example:
+        tokenId: tok_1FAeVFG8PQyZCUJhJp7emswP
     DomainOrderRequest:
       type: object
       properties:
         payment:
-          type: object
-          anyOf:
-            - $ref: '#/components/schemas/FreePayment'
+          $ref: '#/components/schemas/OrderPayment'
         domains:
           type: array
           items:
@@ -355,7 +377,7 @@ components:
               email:
                 type: string
                 example: matt@unstoppabledomains.com
-                description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain receiveк. If email is provided - domain will be linked to email address and could be claimed on chain later.
+                description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain receive:. If email is provided - domain will be linked to email address and could be claimed on chain later.
                 nullable: true
               resolution:
                 description: Mint domain with predefined records. Requires owner field.
@@ -381,8 +403,7 @@ components:
           description: orderID used for later status check
           example: -Lm9wiYytgrpf4YCWYv6
         payment:
-          anyOf:
-            - $ref: '#/components/schemas/FreePayment'
+          $ref: '#/components/schemas/OrderPayment'
         total:
           type: integer
           description: Total price in USD Cents. For example $10 = 1000.
