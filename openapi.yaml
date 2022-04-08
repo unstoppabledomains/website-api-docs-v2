@@ -25,7 +25,7 @@ paths:
         required: true
         schema:
           type: string
-          example: reseller1342
+          example: udtesting
       - name: domainName
         in: path
         required: true
@@ -196,7 +196,7 @@ paths:
         required: true
         schema:
           type: string
-          example: reseller1342
+          example: udtesting
       - name: domainName
         in: path
         required: true
@@ -234,7 +234,7 @@ paths:
         required: true
         schema:
           type: string
-          example: reseller123
+          example: udtesting
     post:
       security:
         - {}
@@ -281,7 +281,7 @@ paths:
         required: true
         schema:
           type: string
-          example: reseller123
+          example: udtesting
       - name: orderNumber
         in: path
         description: ID of the order
