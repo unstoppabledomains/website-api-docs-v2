@@ -243,8 +243,6 @@ paths:
         - orders
       summary: Buy a domain or claim for free
       description:
-        Authentication is optional for this endpoint and it's required only if using specific payment types (free, payback). If Authentication is used - API should be called from secure server environment.
-
         This API endpoint is used for buying domains from UD. The blockchain needs time before a transaction is mined. In rare cases, it is possible for someone to front run your purchase, which would result in an order being cancelled. We expect this to happen in less than 1 out of 10000 cases. Please make sure you are using the 'Order Status' endpoint and wait until the transaction is mined.
 
         Endpoint requires either email or owner address. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)
@@ -358,6 +356,14 @@ components:
       properties:
         payment:
           $ref: '#/components/schemas/OrderPayment'
+        deviceId:
+          type: string
+          description: Unique device fingerprint of the request origin. Required in some cases for fraud prevention.
+          example: 098f6bcd4621d373cade4e832627b4f6
+        ipAddress:
+          type: string
+          description: IP address of the request origin. Required in some cases for fraud prevention.
+          example: 172.217.22.14
         domains:
           type: array
           items:
