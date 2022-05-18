@@ -323,11 +323,18 @@ components:
     OrderSecurity:
       type: object
       description: Additional security parameters.
+      required:
+        -  deviceId
+        -  deviceIdType
       properties:
         deviceId:
           type: string
           description: Unique device fingerprint of the request origin. Required in some cases for fraud prevention.
           example: 098f6bcd4621d373cade4e832627b4f6
+        deviceIdType:
+          type: string
+          description: The type of device id that is used.
+          example: fingerprintjs-pro
         ipAddress:
           type: string
           description: IP address of the request origin. Required in some cases for fraud prevention.
