@@ -1,13 +1,12 @@
 openapi: 3.0.0
 info:
   title: Unstoppable Resellers API
-  description: 'Reseller API requires you to be an authorized reseller.
-    To get registered as reseller and get Stripe payment credentials check the following [guide](https://docs.unstoppabledomains.com/sell-domains-to-users-in-my-app/register-as-reseller).'
+  description: 'The Reseller API requires you to be an authorized seller. To register as a reseller and integrate our APIs into your applications, check our [Register as a Reseller](https://docs.unstoppabledomains.com/reseller/) guide.'
   contact:
     email: dev@unstoppabledomains.com
   version: 2.0.0
 externalDocs:
-  description: Unstoppable Domains documentation
+  description: Unstoppable Domains Developer Documentation Portal
   url: https://docs.unstoppabledomains.com
 servers:
   - url: https://unstoppabledomains.com/api/v2/resellers
