@@ -142,7 +142,7 @@ paths:
             - 'domainsforfree1.888'
           items:
             type: string
-            example: 'ryan.crypto'          
+            example: 'ryan.crypto'
       - name: tlds
         in: query
         description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
@@ -157,7 +157,7 @@ paths:
             - '888'
           items:
             type: string
-            example: 'dao'      
+            example: 'dao'
     get:
       tags:
         - domains
@@ -210,7 +210,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DomainReverseRequest'    
+              $ref: '#/components/schemas/DomainReverseRequest'
       responses:
         '200':
           description: Valid
@@ -324,21 +324,19 @@ components:
       type: object
       description: Additional security parameters.
       required:
-        -  deviceId
-        -  deviceIdType
+        -  type
+        -  identifier
       properties:
-        deviceId:
+        type:
           type: string
-          description: Unique device fingerprint of the request origin. Required for fraud prevention.
-          example: 098f6bcd4621d373cade4e832627b4f6
-        deviceIdType:
+          description: Security method providers
+          enum:
+            - 'fingerprintjs'
+          example: 'fingerprintjs'
+        identifier:
           type: string
-          description: The type of device id that is used.
-          example: fingerprintjs-pro
-        ipAddress:
-          type: string
-          description: IP address of the request origin. Required in some cases for fraud prevention.
-          example: 172.217.22.14
+          description: The device identifier. In FingerprintJS, it would be the Visitor ID.
+          example: 'i2udKSvRFcN1wOqGLk3J'
     OrderPayment:
       type: object
       description: Payment type and parameters
@@ -357,7 +355,7 @@ components:
             - $ref: '#/components/schemas/CoinbasePaymentProperties'
       example:
         method: stripe
-        properties: 
+        properties:
           tokenId: tok_1FAeVFG8PQyZCUJhJp7emswP
     FreePaymentProperties:
       type: object
@@ -376,7 +374,9 @@ components:
         payment:
           $ref: '#/components/schemas/OrderPayment'
         security:
-          $ref: '#/components/schemas/OrderSecurity'
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderSecurity'
         domains:
           type: array
           items:
@@ -410,7 +410,7 @@ components:
                 example:
                   crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
                   crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
-              resellerIdentityKey: 
+              resellerIdentityKey:
                 type: string
                 nullable: true
                 description: Field is required if domain was reserved. Value should be the same as it was when domain was reserved.
@@ -437,7 +437,7 @@ components:
               mintingTransaction:
                 type: object
                 properties:
-                  id: 
+                  id:
                     type: number
                     example: 101
                     description: Transaction identifier in Unstoppable system
@@ -485,10 +485,10 @@ components:
             type: integer
             example: 20000
             nullable: false
-    Domain: 
+    Domain:
       type: object
       properties:
-        id: 
+        id:
           type: number
           example: 1001
           description: Id of entity
@@ -526,7 +526,7 @@ components:
             type: string
           example:
             crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-            crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'         
+            crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
         blockchain:
           $ref: '#/components/schemas/Blockchain'
         freeToClaim:
@@ -541,7 +541,7 @@ components:
           externalDocs:
             description: 'Namehashing essentials'
             url: https://docs.unstoppabledomains.com/domain-registry-essentials/namehashing
-      
+
     DomainAvailabilityResponse:
       type: object
       properties:
@@ -626,7 +626,7 @@ components:
     NotFoundError:
       type: object
       properties:
-        code: 
+        code:
           type: string
           example: 'NOT_FOUND'
         message:
@@ -638,7 +638,7 @@ components:
           example: null
         value:
           description: Value of error field
-          example: null          
+          example: null
         status:
           type: number
           example: 404
