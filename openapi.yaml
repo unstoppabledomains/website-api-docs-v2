@@ -322,7 +322,7 @@ components:
           description: 'Unique external identifier of user. Could by ANY string value. Unstoppable will try to match internal and external user id.'
     OrderSecurity:
       type: object
-      description: Additional security parameters.
+      description: Additional security parameters. Required if the payment method is 'free'.
       required:
         -  type
         -  identifier
