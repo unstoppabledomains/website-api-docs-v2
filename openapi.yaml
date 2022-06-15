@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Unstoppable Resellers API
-  description: 'The Reseller API requires you to be an authorized seller. To register as a reseller and integrate our APIs into your applications, check our [Register as a Reseller](https://docs.unstoppabledomains.com/reseller/) guide.'
+  title: Unstoppable Partner API
+  description: 'The Partner API requires you to be an authorized seller. To register as a partner and integrate our APIs into your applications, check our [Register as a Partner](https://docs.unstoppabledomains.com/partner/) guide.'
   contact:
     email: dev@unstoppabledomains.com
   version: 2.0.0
@@ -20,7 +20,7 @@ paths:
     parameters:
       - name: resellerID
         in: path
-        description: Resellers ID obtained from UD team after registration as a Reseller
+        description: Resellers ID obtained from UD team after registration as a Partner
         required: true
         schema:
           type: string
@@ -49,7 +49,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralError'
         '401':
-          description: Reseller not found
+          description: Partner not found
           content:
             application/json:
               schema:
@@ -113,7 +113,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralError'
         '401':
-          description: Reseller not found
+          description: Partner not found
           content:
             application/json:
               schema:
@@ -162,7 +162,7 @@ paths:
         - domains
       summary: Get free domains suggestions
       description:
-        This endpoint is used to provide free domains suggestions if Resellers is eligible for free domains. If Reseller isn't eligible for free domains suggestions - endpoint will return error.
+        This endpoint is used to provide free domains suggestions if a partner is eligible for free domains. If partner isn't eligible for free domains suggestions - endpoint will return error.
       responses:
         '200':
           description: Valid
@@ -177,7 +177,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralError'
         '401':
-          description: Reseller not found
+          description: Partner not found
           content:
             application/json:
               schema:
@@ -185,13 +185,13 @@ paths:
   /{resellerID}/domains/{domainName}/reserve:
     post:
       summary: Reserve free domain name for period of time
-      description: Reserve free domain name for external user identifier. Usually it's a user identifier or email in a resellers system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
+      description: Reserve free domain name for external user identifier. Usually it's a user identifier or email in a partner's system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
       security:
         - ApiSecret: []
       parameters:
       - name: resellerID
         in: path
-        description: Resellers ID obtained from UD team after registration as a Reseller
+        description: Resellers ID obtained from UD team after registration as a partner
         required: true
         schema:
           type: string
@@ -220,7 +220,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralError'
         '401':
-          description: Reseller not found
+          description: Partner not found
           content:
             application/json:
               schema:
@@ -265,7 +265,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralError'
         '401':
-          description: Reseller not found
+          description: Partner not found
           content:
             application/json:
               schema:
@@ -299,7 +299,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainOrderResponse'
         '401':
-          description: Reseller not found
+          description: Partner not found
           content:
             application/json:
               schema:
@@ -563,7 +563,7 @@ components:
               example: 1000
               nullable: true
             availableForFree:
-              description: Whether domain is available for free for the Reseller
+              description: Whether domain is available for free for the partner
               type: boolean
               example: false
             test:
