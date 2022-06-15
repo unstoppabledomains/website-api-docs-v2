@@ -141,7 +141,7 @@ paths:
             - 'domainsforfree1.888'
           items:
             type: string
-            example: 'ryan.crypto'          
+            example: 'ryan.crypto'
       - name: tlds
         in: query
         description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
@@ -156,7 +156,7 @@ paths:
             - '888'
           items:
             type: string
-            example: 'dao'      
+            example: 'dao'
     get:
       tags:
         - domains
@@ -209,7 +209,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DomainReverseRequest'    
+              $ref: '#/components/schemas/DomainReverseRequest'
       responses:
         '200':
           description: Valid
@@ -242,8 +242,6 @@ paths:
         - orders
       summary: Buy a domain or claim for free
       description:
-        Authentication is optional for this endpoint and it's required only if using specific payment types (free, payback). If Authentication is used - API should be called from secure server environment.
-
         This API endpoint is used for buying domains from UD. The blockchain needs time before a transaction is mined. In rare cases, it is possible for someone to front run your purchase, which would result in an order being cancelled. We expect this to happen in less than 1 out of 10000 cases. Please make sure you are using the 'Order Status' endpoint and wait until the transaction is mined.
 
         Endpoint requires either email or owner address. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)
@@ -321,6 +319,23 @@ components:
           type: string
           example: 'example@user.com'
           description: 'Unique external identifier of user. Could by ANY string value. Unstoppable will try to match internal and external user id.'
+    OrderSecurity:
+      type: object
+      description: Additional security parameters. Required if the payment method is 'free'.
+      required:
+        -  type
+        -  identifier
+      properties:
+        type:
+          type: string
+          description: Security method providers
+          enum:
+            - 'fingerprintjs'
+          example: 'fingerprintjs'
+        identifier:
+          type: string
+          description: The device identifier. In FingerprintJS, it would be the Visitor ID.
+          example: 'i2udKSvRFcN1wOqGLk3J'
     OrderPayment:
       type: object
       description: Payment type and parameters
@@ -339,7 +354,7 @@ components:
             - $ref: '#/components/schemas/CoinbasePaymentProperties'
       example:
         method: stripe
-        properties: 
+        properties:
           tokenId: tok_1FAeVFG8PQyZCUJhJp7emswP
     FreePaymentProperties:
       type: object
@@ -357,6 +372,10 @@ components:
       properties:
         payment:
           $ref: '#/components/schemas/OrderPayment'
+        security:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderSecurity'
         domains:
           type: array
           items:
@@ -390,7 +409,7 @@ components:
                 example:
                   crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
                   crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
-              resellerIdentityKey: 
+              resellerIdentityKey:
                 type: string
                 nullable: true
                 description: Field is required if domain was reserved. Value should be the same as it was when domain was reserved.
@@ -417,7 +436,7 @@ components:
               mintingTransaction:
                 type: object
                 properties:
-                  id: 
+                  id:
                     type: number
                     example: 101
                     description: Transaction identifier in Unstoppable system
@@ -465,10 +484,10 @@ components:
             type: integer
             example: 20000
             nullable: false
-    Domain: 
+    Domain:
       type: object
       properties:
-        id: 
+        id:
           type: number
           example: 1001
           description: Id of entity
@@ -506,7 +525,7 @@ components:
             type: string
           example:
             crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-            crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'         
+            crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
         blockchain:
           $ref: '#/components/schemas/Blockchain'
         freeToClaim:
@@ -521,7 +540,7 @@ components:
           externalDocs:
             description: 'Namehashing essentials'
             url: https://docs.unstoppabledomains.com/domain-registry-essentials/namehashing
-      
+
     DomainAvailabilityResponse:
       type: object
       properties:
@@ -606,7 +625,7 @@ components:
     NotFoundError:
       type: object
       properties:
-        code: 
+        code:
           type: string
           example: 'NOT_FOUND'
         message:
@@ -618,7 +637,7 @@ components:
           example: null
         value:
           description: Value of error field
-          example: null          
+          example: null
         status:
           type: number
           example: 404
