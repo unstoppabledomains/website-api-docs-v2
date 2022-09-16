@@ -894,4 +894,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    HttpBasic:
+      type: http
+      scheme: basic
 
