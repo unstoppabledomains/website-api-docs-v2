@@ -310,6 +310,134 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
+  /{resellerID}/actions:
+    parameters:
+      - name: resellerID
+        in: path
+        description: ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: udtesting
+    post:
+      summary: Creates a user request to perform certain action on chain
+      description: |
+        Receives domain name, operation and parameters that needs to be performed on the blockchain.
+        Example - set 'crypto.ETH.address' record for 'example.crypto'  domain to '0xffff' value
+        Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
+      tags:
+        - actions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockchainActionRequest'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainActionResponse'
+        '401':
+          description: Partner not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+        '404':
+          description: Domain Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralNotFoundError'
+  /{resellerID}/actions/{actionId}:
+    parameters:
+      - name: resellerID
+        in: path
+        description: ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: udtesting
+      - name: actionId
+        in: path
+        description: Action ID obtained from `POST` endpoint
+        required: true
+        schema:
+          type: string
+          example: 2882
+    post:
+      summary: Returns domain action status
+      description: |
+        Receives domain action id.
+        Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
+      tags:
+        - actions
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainActionResponse'
+        '401':
+          description: Partner not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+        '404':
+          description: Action Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralNotFoundError'
+  /{resellerID}/actions/{actionId}/sign:
+    parameters:
+      - name: resellerID
+        in: path
+        description: Reseller ID obtained from UD team
+        required: true
+        schema:
+          type: string
+          example: udtesting
+      - name: actionId
+        in: path
+        description: Action ID obtained from `POST` endpoint
+        required: true
+        schema:
+          type: string
+          example: 2882
+    post:
+      summary: Submits required signatures for a blockchain action
+      description: |
+        Receives action id made with other endpoint and the list of signatures required by the action.
+        Verifies signatures and starts the domain action
+      tags:
+        - actions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockchainActionSignRequest'
+      responses:
+        '200':
+          description: Successful
+        '401':
+          description: Partner not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResellerNotFound'
+        '404':
+          description: Action Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralNotFoundError'
 components:
   schemas:
     DomainReverseRequest:
@@ -578,6 +706,16 @@ components:
         - 'MATIC'
         - 'ETH'
         - 'ZIL'
+    BlockchainActionTxType:
+      type: string
+      description: Type of transaction to be executed
+      enum: 
+        - Regular
+        - Meta 
+        - Internal 
+        - System 
+        - Zilliqa 
+      example: 'Regular'
     GeneralError:
       type: object
       required:
@@ -663,6 +801,151 @@ components:
           type: number
           description: Status code of the response
           example: 401
+    BlockchainActionRequest:
+      type: object
+      properties:
+        domain:
+          type: string
+          nullable: true
+          example: bogdangusiev.crypto
+          description: Domain name
+        gasCompensationPolicy:
+          type: string
+          description: |
+            Gas Compensation Policy
+            There are three gas compensation policies that clients can choose, depending on how they want make users send and pay for them.
+            * `AlwaysCompensate` - It always assumes using meta transactions. User pays for transactions in USD via stripe payment intent that UD doesn't execute for free (i.e. ETH).
+            * `CompensateFree` - backend will use meta-transactions only for the those transactions that UD executes for free (i.e. MATIC). 
+            * `NeverCompensate` - If a client wants to both make users send and pay for the transactions themselves, it’ll use this policy. Guarantees maximum privacy
+          example: CompensateFree
+          enum:
+            - AlwaysCompensate
+            - CompensateFree
+            - NeverCompensate
+        action:
+          type: string
+          enum:
+            - UpdateRecords
+            - Transfer
+            - Deposit
+            - Withdraw
+            - SetReverseResolution
+            - UpgradeZil
+            - Return
+          description: Action that needs to be performed on chain
+        parameters:
+          type: object
+          nullable: true
+          description: |
+            Custom list of parameters for the given action
+
+            * UpdateRecords - `{records: Record<string, string>}`
+            * Transfer - `{to: string, resetRecords?: boolean}`
+            * Deposit - `{resetRecords?: boolean, resetReverse?: boolean}`
+            * Withdraw - `{records?: Record<string, string>, resetRecords?: boolean, resetReverse?: boolean}`
+            * SetReverse - `{remove: boolean}`
+            * UpgradeZil - `{ address: string, publicKey: string, signature: string}`
+            * Return - none
+            
+          additionalProperties:
+            type: string
+          example:
+            records: 
+              crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+
+    BlockchainActionResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Assigned id. Can be used to submit signature or check status later
+          example: 12882
+        domain:
+          $ref: '#/components/schemas/Domain'
+        txs:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                $ref: '#/components/schemas/BlockchainActionTxType'
+              blockchain:
+                $ref: '#/components/schemas/Blockchain'
+              to:
+                type: string
+                nullable: true
+                description: Contract address to send the transaction to (only for Regular type)
+                example: "0x801452cFAC27e79a11c6b185986fdE09e8637589"
+              data:
+                type: string
+                nullable: true
+                description: Encoded transaction body to be sent (only for Regular type)
+                example: "0xb88d4fde00000000000000000000000087348226e747df4cff2b1b1e38a528df405ccd5c000000000000000000000000070e83fced225184e67c86302493fffcdb953f7153b27892177c7f5b476966a119b206227e8155dc86269f932655df96e76d8803000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001"
+              signatureStatus:
+                type: string
+                description: |
+                  A state of transactions signature
+                  * NotRequired - the server doesn't require the client to sign this transaction
+                  * Signed - the client has already signed a transaction
+                  * Required - the server is awaiting for the client to sign a transaction
+                  * WillBeRequired - the server is awaiting for certain operation to be complete. The signature status is expected to go into Required status afterwards, so the client has to wait for signature submission to be ready.
+                enum:
+                  - NotRequired 
+                  - Signed 
+                  - Required 
+                  - WillBeRequired 
+                example: Required
+              messageToSign:
+                type: string
+                nullable: true
+                description: Message that needs to be signed (only for Meta type).
+                example: "0xd08e50a6c19462a60cf783f72deb80212708a9a45841db9fe2e49e3647f997cb"
+        paymentInfo:
+          type: 'object'
+          nullable: true
+          description: Stripe Intent to be paid for transaction
+          properties:
+            id:
+              type: 'string'
+              description: 'Stripe Intent Id'
+              example: '3882828'
+            stripeSecret:
+              type: string
+              description: Stripe Intent Secret
+            totalAmount:
+              type: number
+              example: 424
+              description: Total Amount to be paid in USD
+    BlockchainActionSignRequest:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: number
+            example: 2883
+            description: Transaction ID in UD database
+          type:
+            $ref: '#/components/schemas/BlockchainActionTxType'
+          txHash:
+            type: string
+            nullable: true
+            description: Transaction Hash (only for Regular type)
+            example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
+          signature:
+            type: string
+            nullable: true
+            description: Transaction Signature (only for Meta type)
+            example: null
+          txParams:
+            # TODO clarify zilliqa trnsaction parameters
+            type: object
+            nullable: true
+            description: Transaction Paramters (only for Zilliqa type)
+            example: null
+
+
+
   securitySchemes:
     ApiSecret:
       type: http
