@@ -18,19 +18,8 @@ tags:
 paths:
   /{resellerID}/domains/{domainName}:
     parameters:
-      - name: resellerID
-        in: path
-        description: Resellers ID obtained from UD team after registration as a Partner
-        required: true
-        schema:
-          type: string
-          example: udtesting
-      - name: domainName
-        in: path
-        required: true
-        schema:
-          type: string
-          example: beresnev.crypto
+      - $ref: '#/components/parameters/ResellerIdParameter'
+      - $ref: '#/components/parameters/DomainNameParameter'
     get:
       tags:
         - domains
@@ -56,13 +45,7 @@ paths:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
   /{resellerID}/domains/suggestions:
     parameters:
-      - name: resellerID
-        in: path
-        description: ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
+      - $ref: '#/components/parameters/ResellerIdParameter'
       - name: search
         in: query
         description: Keywords that will be used to build domain suggestions. Can be TLD or domain name.
@@ -120,13 +103,7 @@ paths:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
   /{resellerID}/domains/suggestions/free:
     parameters:
-      - name: resellerID
-        in: path
-        description: ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
+      - $ref: '#/components/parameters/ResellerIdParameter'
       - name: search
         in: query
         description: Keywords that will be used to build FREE domain suggestions. Can be TLD or domain name.
@@ -189,19 +166,8 @@ paths:
       security:
         - ApiSecret: []
       parameters:
-      - name: resellerID
-        in: path
-        description: Resellers ID obtained from UD team after registration as a partner
-        required: true
-        schema:
-          type: string
-          example: udtesting
-      - name: domainName
-        in: path
-        required: true
-        schema:
-          type: string
-          example: beresnev.crypto
+      - $ref: '#/components/parameters/ResellerIdParameter'
+      - $ref: '#/components/parameters/DomainNameParameter'
       tags:
         - domains
       requestBody:
@@ -227,13 +193,7 @@ paths:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
   /{resellerID}/orders:
     parameters:
-      - name: resellerID
-        in: path
-        description: ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
+      - $ref: '#/components/parameters/ResellerIdParameter'
     post:
       security:
         - {}
@@ -272,13 +232,7 @@ paths:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
   /{resellerID}/orders/{orderNumber}:
     parameters:
-      - name: resellerID
-        in: path
-        description: ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
+      - $ref: '#/components/parameters/ResellerIdParameter'
       - name: orderNumber
         in: path
         description: ID of the order
@@ -312,13 +266,7 @@ paths:
                 $ref: '#/components/schemas/GeneralNotFoundError'
   /{resellerID}/actions:
     parameters:
-      - name: resellerID
-        in: path
-        description: ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
+      - $ref: '#/components/parameters/ResellerIdParameter'
     post:
       summary: Creates a user request to perform certain action on chain
       description: |
@@ -354,20 +302,8 @@ paths:
                 $ref: '#/components/schemas/GeneralNotFoundError'
   /{resellerID}/actions/{actionId}:
     parameters:
-      - name: resellerID
-        in: path
-        description: ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
-      - name: actionId
-        in: path
-        description: Action ID obtained from `POST` endpoint
-        required: true
-        schema:
-          type: string
-          example: 2882
+      - $ref: '#/components/parameters/ResellerIdParameter'
+      - $ref: '#/components/parameters/BlockchainActionIdParameter'
     post:
       summary: Returns domain action status
       description: |
@@ -396,20 +332,8 @@ paths:
                 $ref: '#/components/schemas/GeneralNotFoundError'
   /{resellerID}/actions/{actionId}/sign:
     parameters:
-      - name: resellerID
-        in: path
-        description: Reseller ID obtained from UD team
-        required: true
-        schema:
-          type: string
-          example: udtesting
-      - name: actionId
-        in: path
-        description: Action ID obtained from `POST` endpoint
-        required: true
-        schema:
-          type: string
-          example: 2882
+      - $ref: '#/components/parameters/ResellerIdParameter'
+      - $ref: '#/components/parameters/BlockchainActionIdParameter'
     post:
       summary: Submits required signatures for a blockchain action
       description: |
@@ -439,6 +363,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
 components:
+  parameters:
+    ResellerIdParameter:
+      name: resellerID
+      in: path
+      description: Resellers ID obtained from UD team after registration as a Partner
+      required: true
+      schema:
+        type: string
+        example: udtesting 
+    DomainNameParameter:
+      name: domainName
+      in: path
+      required: true
+      schema:
+        type: string
+        example: beresnev.crypto
+    BlockchainActionIdParameter:
+      name: actionId
+      in: path
+      description: Action ID obtained from `POST` endpoint
+      required: true
+      schema:
+        type: string
+        example: 2882
   schemas:
     DomainReverseRequest:
       type: object
@@ -951,3 +899,4 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
