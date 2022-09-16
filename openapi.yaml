@@ -9,16 +9,28 @@ externalDocs:
   description: Unstoppable Domains Developer Documentation Portal
   url: https://docs.unstoppabledomains.com
 servers:
-  - url: https://unstoppabledomains.com/api/v2/resellers
+  - url: https://unstoppabledomains.com/api/v2/resellers/{resellerId}
+    description: 'Production Server'
+    variables:
+      resellerId:
+        default: 'udtesting'
+        description: 'Partner ID given by Unstoppable Domains'
+  - url: https://staging.unstoppabledomains.com/api/v2/resellers/{resellerId}
+    description: 'Staging Server'
+    variables:
+      resellerId:
+        default: 'udtesting'
+        description: 'Partner ID given by Unstoppable Domains'
 tags:
   - name: orders
     description: Create an order and get the status of orders
   - name: domains
     description: Check domain availability and suggestions for purchase or claim
+  - name: actions
+    description: Create, sign and check status of blockchain actions
 paths:
-  /{resellerID}/domains/{domainName}:
+  /domains/{domainName}:
     parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
       - $ref: '#/components/parameters/DomainNameParameter'
     get:
       tags:
@@ -43,9 +55,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
-  /{resellerID}/domains/suggestions:
+  /domains/suggestions:
     parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
       - name: search
         in: query
         description: Keywords that will be used to build domain suggestions. Can be TLD or domain name.
@@ -101,9 +112,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
-  /{resellerID}/domains/suggestions/free:
+  /domains/suggestions/free:
     parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
       - name: search
         in: query
         description: Keywords that will be used to build FREE domain suggestions. Can be TLD or domain name.
@@ -159,15 +169,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
-  /{resellerID}/domains/{domainName}/reserve:
+  /domains/{domainName}/reserve:
     post:
       summary: Reserve free domain name for period of time
       description: Reserve free domain name for external user identifier. Usually it's a user identifier or email in a partner's system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
       security:
         - ApiSecret: []
       parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
-      - $ref: '#/components/parameters/DomainNameParameter'
+        - $ref: '#/components/parameters/DomainNameParameter'
       tags:
         - domains
       requestBody:
@@ -191,9 +200,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
-  /{resellerID}/orders:
-    parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
+  /orders:
     post:
       security:
         - {}
@@ -230,9 +237,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResellerNotFound'
-  /{resellerID}/orders/{orderNumber}:
+  /orders/{orderNumber}:
     parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
       - name: orderNumber
         in: path
         description: ID of the order
@@ -264,9 +270,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
-  /{resellerID}/actions:
-    parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
+  /actions:
     post:
       summary: Creates a user request to perform certain action on chain
       description: |
@@ -300,9 +304,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
-  /{resellerID}/actions/{actionId}:
+  /actions/{actionId}:
     parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
       - $ref: '#/components/parameters/BlockchainActionIdParameter'
     post:
       summary: Returns domain action status
@@ -330,9 +333,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
-  /{resellerID}/actions/{actionId}/sign:
+  /actions/{actionId}/sign:
     parameters:
-      - $ref: '#/components/parameters/ResellerIdParameter'
       - $ref: '#/components/parameters/BlockchainActionIdParameter'
     post:
       summary: Submits required signatures for a blockchain action
@@ -364,14 +366,6 @@ paths:
                 $ref: '#/components/schemas/GeneralNotFoundError'
 components:
   parameters:
-    ResellerIdParameter:
-      name: resellerID
-      in: path
-      description: Resellers ID obtained from UD team after registration as a Partner
-      required: true
-      schema:
-        type: string
-        example: udtesting 
     DomainNameParameter:
       name: domainName
       in: path
