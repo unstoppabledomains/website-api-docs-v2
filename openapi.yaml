@@ -276,6 +276,7 @@ paths:
       description: |
         Receives domain name, operation and parameters that needs to be performed on the blockchain.
         Example - set 'crypto.ETH.address' record for 'example.crypto'  domain to '0xffff' value
+
         Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
       tags:
         - actions
