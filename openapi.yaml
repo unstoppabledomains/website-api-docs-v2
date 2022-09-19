@@ -44,17 +44,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainAvailabilityResponse'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralError'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
   /domains/suggestions:
     parameters:
       - name: search
@@ -101,17 +93,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainSuggestions'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralError'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
   /domains/suggestions/free:
     parameters:
       - name: search
@@ -158,17 +142,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainSuggestions'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralError'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
   /domains/{domainName}/reserve:
     post:
       summary: Reserve free domain name for period of time
@@ -189,17 +165,9 @@ paths:
         '200':
           description: Valid
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralError'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
   /orders:
     post:
       security:
@@ -226,17 +194,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainOrderResponse'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralError'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
   /orders/{orderNumber}:
     parameters:
       - name: orderNumber
@@ -259,11 +219,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainOrderResponse'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
         '404':
           description: Order Not Found
           content:
@@ -294,11 +250,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BlockchainActionResponse'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
         '404':
           description: Domain Not Found
           content:
@@ -323,17 +275,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/BlockchainActionResponse'
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
         '404':
-          description: Action Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralNotFoundError'
+          $ref: '#/components/responses/ActionNotFound'
   /actions/{actionId}/sign:
     parameters:
       - $ref: '#/components/parameters/BlockchainActionIdParameter'
@@ -354,17 +298,9 @@ paths:
         '200':
           description: Successful
         '401':
-          description: Partner not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
         '404':
-          description: Action Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeneralNotFoundError'
+          $ref: '#/components/responses/ActionNotFound'
 components:
   parameters:
     DomainNameParameter:
@@ -382,6 +318,26 @@ components:
       schema:
         type: string
         example: 2882
+  responses:
+    PartnerNotFound:
+      description: Partner Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralNotFoundError'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    ActionNotFound:
+      description: Action Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralNotFoundError'
+
   schemas:
     DomainReverseRequest:
       type: object
