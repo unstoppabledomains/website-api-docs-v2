@@ -377,7 +377,7 @@ components:
     BlockchainActionIdParameter:
       name: actionId
       in: path
-      description: Action ID obtained from `POST` endpoint
+      description: Action ID obtained from `POST /actions` endpoint
       required: true
       schema:
         type: string
