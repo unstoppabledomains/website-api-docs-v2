@@ -308,7 +308,7 @@ paths:
   /actions/{actionId}:
     parameters:
       - $ref: '#/components/parameters/BlockchainActionIdParameter'
-    post:
+    get:
       summary: Returns domain action status
       description: |
         Receives domain action id.
