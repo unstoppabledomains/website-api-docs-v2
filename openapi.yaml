@@ -49,36 +49,8 @@ paths:
           $ref: '#/components/responses/PartnerNotFound'
   /domains/suggestions:
     parameters:
-      - name: search
-        in: query
-        description: Keywords that will be used to build domain suggestions. Can be TLD or domain name.
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: array
-          example:
-            - 'test.crypto'
-            - 'hello'
-            - 'domains.888'
-          items:
-            type: string
-            example: 'ryan.crypto'
-      - name: tlds
-        in: query
-        description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: array
-          example:
-            - 'crypto'
-            - 'nft'
-            - '888'
-          items:
-            type: string
-            example: 'dao'
+      - $ref: '#/components/parameters/SearchDomainParameter'
+      - $ref: '#/components/parameters/TldsDomainParameter'
     get:
       tags:
         - domains
@@ -98,36 +70,8 @@ paths:
           $ref: '#/components/responses/PartnerNotFound'
   /domains/suggestions/free:
     parameters:
-      - name: search
-        in: query
-        description: Keywords that will be used to build FREE domain suggestions. Can be TLD or domain name.
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: array
-          example:
-            - 'fancyfox123.crypto'
-            - 'firstname'
-            - 'domainsforfree1.888'
-          items:
-            type: string
-            example: 'ryan.crypto'
-      - name: tlds
-        in: query
-        description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: array
-          example:
-            - 'crypto'
-            - 'nft'
-            - '888'
-          items:
-            type: string
-            example: 'dao'
+      - $ref: '#/components/parameters/SearchDomainParameter'
+      - $ref: '#/components/parameters/TldsDomainParameter'
     get:
       tags:
         - domains
@@ -318,6 +262,38 @@ components:
       schema:
         type: string
         example: 2882
+    SearchDomainParameter:
+      name: search
+      in: query
+      description: Keywords that will be used to build FREE domain suggestions. Can be TLD or domain name.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        example:
+          - 'fancyfox123.crypto'
+          - 'firstname'
+          - 'domainsforfree1.888'
+        items:
+          type: string
+          example: 'ryan.crypto'
+    TldsDomainParameter:
+      name: tlds
+      in: query
+      description: Limit suggestions output by specific TLDs (crypto, dao, etc.)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        example:
+          - 'crypto'
+          - 'nft'
+          - '888'
+        items:
+          type: string
+          example: 'dao'
   responses:
     PartnerNotFound:
       description: Partner Not Found
