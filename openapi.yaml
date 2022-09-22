@@ -171,6 +171,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
   /actions:
+    get:
+      summary: Searches for domain actions made
+      tags:
+        - actions
+      description: |
+        Search for domain actions by user, domain or owner address.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Blockchain Action Status
+          schema:
+            type: string
+            enum:
+              - InProgress
+              - Completed
+              - Failed 
+        - name: userId
+          in: query
+          required: false
+          description: User ID
+          schema:
+            type: number
+        - name: domain
+          in: query
+          required: false
+          description: Domain Name
+          schema:
+            type: string
+            example: bogdangusiev.crypto
+        - name: ownerAddress
+          in: query
+          required: false
+          description: Domain Owner Address
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: Page Number
+          schema:
+            type: number
+            example: 1
+        - name: perPage
+          in: query
+          required: false
+          description: Number of actions per page
+          schema:
+            type: number
+            example: 10
+
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties:
+                  count:
+                    type: number
+                    example: 1
+                  actions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BlockchainActionResponse'
+
     post:
       summary: Creates a user request to perform certain action on chain
       description: |
@@ -735,6 +802,14 @@ components:
           type: number
           description: Assigned id. Can be used to submit signature or check status later
           example: 12882
+        status:
+          type: string
+          description: Blockchain Action Status
+          enum:
+            - Draft
+            - InProgress
+            - Completed
+            - Failed 
         domain:
           $ref: '#/components/schemas/Domain'
         txs:
@@ -751,6 +826,14 @@ components:
                 nullable: true
                 description: Contract address to send the transaction to (only for Regular type)
                 example: "0x801452cFAC27e79a11c6b185986fdE09e8637589"
+              status:
+                type: string
+                description: Blockchain Action Transaction Status
+                enum:
+                  - Draft
+                  - Pending
+                  - Completed
+                  - Failed
               data:
                 type: string
                 nullable: true
@@ -813,7 +896,7 @@ components:
             description: Transaction Signature (only for Meta type)
             example: null
           txParams:
-            # TODO clarify zilliqa trnsaction parameters
+            # TODO clarify zilliqa transaction parameters
             type: object
             nullable: true
             description: Transaction Paramters (only for Zilliqa type)
