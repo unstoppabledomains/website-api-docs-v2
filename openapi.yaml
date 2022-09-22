@@ -398,7 +398,7 @@ components:
               email:
                 type: string
                 example: matt@unstoppabledomains.com
-                description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain receive:. If email is provided - domain will be linked to email address and could be claimed on chain later.
+                description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain received. If email is provided - domain will be linked to email address and could be claimed on chain later.
                 nullable: true
               resolution:
                 description: Mint domain with predefined records. Requires owner field.
