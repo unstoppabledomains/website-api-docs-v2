@@ -328,7 +328,7 @@ components:
       required: true
       schema:
         type: string
-        example: 2882
+        example: 85530
     SearchDomainParameter:
       name: search
       in: query
