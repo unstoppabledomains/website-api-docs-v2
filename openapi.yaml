@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Unstoppable Partner API
-  description: 'The Partner API requires you to be an authorized seller. To register as a partner and integrate our APIs into your applications, check our [Register as a Partner](https://docs.unstoppabledomains.com/partner/) guide.'
+  description: 'The Partner API requires you to be authorized to access them. To access the Partner API and integrate it into your application, check our [Set up Partner API Access](https://docs.unstoppabledomains.com/partner/) guide.'
   contact:
     email: dev@unstoppabledomains.com
   version: 2.0.0
@@ -26,6 +26,8 @@ tags:
     description: Create an order and get the status of orders
   - name: domains
     description: Check domain availability and suggestions for purchase or claim
+  - name: security
+    description: Prepare security parameters for domain orders
   - name: actions
     description: Create, sign and check status of blockchain actions
 paths:
@@ -170,6 +172,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
+  /security/fingerprintjs/keys:
+    post:
+      description: Use this endpoint to fetch Fingerprint public keys
+      summary: Get Fingerprint Public Key
+      tags:
+        - security
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FingerprintKeyResponse'
   /actions:
     get:
       summary: Searches for domain actions made
@@ -187,7 +202,7 @@ paths:
             enum:
               - InProgress
               - Completed
-              - Failed 
+              - Failed
         - name: userId
           in: query
           required: false
@@ -380,8 +395,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/GeneralNotFoundError'
-
   schemas:
+    FingerprintKeyResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Fingerprint public key
+          example: TSveZYwtMdTcHjY9MEPa
     DomainReverseRequest:
       type: object
       properties:
@@ -651,12 +672,12 @@ components:
     BlockchainActionTxType:
       type: string
       description: Type of transaction to be executed
-      enum: 
+      enum:
         - Regular
-        - Meta 
-        - Internal 
-        - System 
-        - Zilliqa 
+        - Meta
+        - Internal
+        - System
+        - Zilliqa
       example: 'Regular'
     GeneralError:
       type: object
@@ -757,7 +778,7 @@ components:
             Gas Compensation Policy
             There are three gas compensation policies that clients can choose, depending on how they want make users send and pay for them.
             * `AlwaysCompensate` - It always assumes using meta transactions. User pays for transactions in USD via stripe payment intent that UD doesn't execute for free (i.e. ETH).
-            * `CompensateFree` - backend will use meta-transactions only for the those transactions that UD executes for free (i.e. MATIC). 
+            * `CompensateFree` - backend will use meta-transactions only for the those transactions that UD executes for free (i.e. MATIC).
             * `NeverCompensate` - If a client wants to both make users send and pay for the transactions themselves, it’ll use this policy. Guarantees maximum privacy
           example: CompensateFree
           enum:
@@ -788,11 +809,11 @@ components:
             * SetReverse - `{remove: boolean}`
             * UpgradeZil - `{ address: string, publicKey: string, signature: string}`
             * Return - none
-            
+
           additionalProperties:
             type: string
           example:
-            records: 
+            records:
               crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
 
     BlockchainActionResponse:
@@ -809,7 +830,7 @@ components:
             - Draft
             - InProgress
             - Completed
-            - Failed 
+            - Failed
         domain:
           $ref: '#/components/schemas/Domain'
         txs:
@@ -848,10 +869,10 @@ components:
                   * Required - the server is awaiting for the client to sign a transaction
                   * WillBeRequired - the server is awaiting for certain operation to be complete. The signature status is expected to go into Required status afterwards, so the client has to wait for signature submission to be ready.
                 enum:
-                  - NotRequired 
-                  - Signed 
-                  - Required 
-                  - WillBeRequired 
+                  - NotRequired
+                  - Signed
+                  - Required
+                  - WillBeRequired
                 example: Required
               messageToSign:
                 type: string
@@ -901,9 +922,6 @@ components:
             nullable: true
             description: Transaction Paramters (only for Zilliqa type)
             example: null
-
-
-
   securitySchemes:
     ApiSecret:
       type: http
@@ -912,4 +930,3 @@ components:
     HttpBasic:
       type: http
       scheme: basic
-
