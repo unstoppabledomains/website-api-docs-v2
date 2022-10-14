@@ -36,6 +36,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/DomainNamesParameter'
     get:
+      security:
+        - ApiSecret: []
       tags:
         - domains
       summary: Multiple domain names availability
@@ -47,9 +49,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainsAvailabilityResponse'
         '400':
-          $ref: '#/components/responses/DomainsBadRequest'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          $ref: '#/components/responses/ResellerNotFound'
+          $ref: '#/components/responses/PartnerNotFound'
   /domains/{domainName}:
     parameters:
       - $ref: '#/components/parameters/DomainNameParameter'
@@ -412,30 +414,18 @@ components:
           type: string
           example: 'dao'
   responses:
-    ResellerNotFound:
-      description: Reseller Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GeneralResellerNotFound'
     PartnerNotFound:
       description: Partner Not Found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/GeneralNotFoundError'
+            $ref: '#/components/schemas/GeneralResellerNotFound'
     BadRequest:
       description: Bad Request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/GeneralError'
-    DomainsBadRequest:
-      description: Domains Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/DomainInvalidNameError' 
     ActionNotFound:
       description: Action Not Found
       content:
