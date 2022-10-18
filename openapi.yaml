@@ -771,30 +771,6 @@ components:
           type: number
           description: Status code of the response
           example: 400
-    DomainInvalidNameError:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Error code
-          example: 'ERROR_CODE'
-        message:
-          type: string
-          description: User friendly description of above code
-          example: 'Error code explanation'
-        field:
-          type: string
-          description: Estimate error field
-          example: 'some field'
-        value:
-          type: array
-          description: Values of error fields
-          items:
-            type: string
-        status:
-          type: number
-          description: Status code of the response
-          example: 400
     NotFoundError:
       type: object
       properties:
