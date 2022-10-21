@@ -31,7 +31,6 @@ tags:
   - name: actions
     description: Create, sign and check status of blockchain actions
 paths:
-
   /domains/:
     parameters:
       - $ref: '#/components/parameters/DomainNamesParameter'
@@ -40,7 +39,7 @@ paths:
         - ApiSecret: []
       tags:
         - domains
-      summary: Multiple domain names availability
+      summary: Check multiple domain names availability
       responses:
         '200':
           description: Successful
@@ -58,7 +57,7 @@ paths:
     get:
       tags:
         - domains
-      summary: Domain name availability
+      summary: Check domain name availability
       responses:
         '200':
           description: Successful
@@ -668,7 +667,6 @@ components:
           externalDocs:
             description: 'Namehashing essentials'
             url: https://docs.unstoppabledomains.com/domain-registry-essentials/namehashing
-
     Availability:
       type: object
       properties:
@@ -692,8 +690,7 @@ components:
         test:
           description: Whether domain is in test namespace
           type: boolean
-          example: true          
-
+          example: true
     DomainAvailabilityResponse:
       type: object
       properties:
@@ -708,7 +705,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DomainAvailabilityResponse'
-
     Blockchain:
       type: string
       description: Which chain is being used to mint a domain
@@ -863,7 +859,6 @@ components:
           example:
             records:
               crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-
     BlockchainActionResponse:
       type: object
       properties:
