@@ -15,8 +15,8 @@ servers:
       resellerId:
         default: 'udtesting'
         description: 'Partner ID given by Unstoppable Domains'
-  - url: https://staging.unstoppabledomains.com/api/v2/resellers/{resellerId}
-    description: 'Staging Server'
+  - url: https://api.ud-sandbox.com/api/v2/resellers/{resellerId}
+    description: 'Sandbox Server'
     variables:
       resellerId:
         default: 'udtesting'
