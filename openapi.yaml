@@ -28,7 +28,7 @@ tags:
     description: Check domain availability and suggestions for purchase or claim
   - name: security
     description: Prepare security parameters for domain orders
-  - name: actions
+  - name: actions (blockchain)
     description: Create, sign and check status of blockchain actions
 paths:
   /domains/:
@@ -209,7 +209,7 @@ paths:
     get:
       summary: Searches for domain actions made
       tags:
-        - actions
+        - actions (blockchain)
       description: |
         Search for domain actions by user, domain or owner address.
       parameters:
@@ -281,7 +281,7 @@ paths:
 
         Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
       tags:
-        - actions
+        - actions (blockchain)
       requestBody:
         required: true
         content:
@@ -312,7 +312,7 @@ paths:
         Receives domain action id.
         Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
       tags:
-        - actions
+        - actions (blockchain)
       responses:
         '200':
           description: Successful
@@ -333,7 +333,7 @@ paths:
         Receives action id made with other endpoint and the list of signatures required by the action.
         Verifies signatures and starts the domain action
       tags:
-        - actions
+        - actions (blockchain)
       requestBody:
         required: true
         content:
