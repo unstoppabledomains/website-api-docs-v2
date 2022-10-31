@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Unstoppable Partner API
-  description: 'The Partner API requires you to be an authorized seller. To register as a partner and integrate our APIs into your applications, check our [Register as a Partner](https://docs.unstoppabledomains.com/partner/) guide.'
+  description: 'The Partner API requires you to be authorized to access them. To access the Partner API and integrate it into your application, check our [Set up Partner API Access](https://docs.unstoppabledomains.com/partner/) guide.'
   contact:
     email: dev@unstoppabledomains.com
   version: 2.0.0
@@ -15,8 +15,8 @@ servers:
       resellerId:
         default: 'udtesting'
         description: 'Partner ID given by Unstoppable Domains'
-  - url: https://staging.unstoppabledomains.com/api/v2/resellers/{resellerId}
-    description: 'Staging Server'
+  - url: https://api.ud-sandbox.com/api/v2/resellers/{resellerId}
+    description: 'Sandbox Server'
     variables:
       resellerId:
         default: 'udtesting'
@@ -26,16 +26,38 @@ tags:
     description: Create an order and get the status of orders
   - name: domains
     description: Check domain availability and suggestions for purchase or claim
-  - name: actions
+  - name: security
+    description: Prepare security parameters for domain orders
+  - name: actions (blockchain)
     description: Create, sign and check status of blockchain actions
 paths:
+  /domains/:
+    parameters:
+      - $ref: '#/components/parameters/DomainNamesParameter'
+    get:
+      security:
+        - ApiSecret: []
+      tags:
+        - domains
+      summary: Check multiple domain names availability
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainsAvailabilityResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/PartnerNotFound'
   /domains/{domainName}:
     parameters:
       - $ref: '#/components/parameters/DomainNameParameter'
     get:
       tags:
         - domains
-      summary: Domain name availability
+      summary: Check domain name availability
       responses:
         '200':
           description: Successful
@@ -170,11 +192,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
+  /security/fingerprintjs/keys:
+    post:
+      description: Use this endpoint to fetch Fingerprint public keys
+      summary: Get Fingerprint Public Key
+      tags:
+        - security
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FingerprintKeyResponse'
   /actions:
     get:
       summary: Searches for domain actions made
       tags:
-        - actions
+        - actions (blockchain)
       description: |
         Search for domain actions by user, domain or owner address.
       parameters:
@@ -187,7 +222,7 @@ paths:
             enum:
               - InProgress
               - Completed
-              - Failed 
+              - Failed
         - name: userId
           in: query
           required: false
@@ -246,7 +281,7 @@ paths:
 
         Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
       tags:
-        - actions
+        - actions (blockchain)
       requestBody:
         required: true
         content:
@@ -277,7 +312,7 @@ paths:
         Receives domain action id.
         Returns the list of transactions that need to be signed by the user in order to perform that operation and optionally a payment invoice in case user wants UD to compensate gas free for those transactions.
       tags:
-        - actions
+        - actions (blockchain)
       responses:
         '200':
           description: Successful
@@ -298,7 +333,7 @@ paths:
         Receives action id made with other endpoint and the list of signatures required by the action.
         Verifies signatures and starts the domain action
       tags:
-        - actions
+        - actions (blockchain)
       requestBody:
         required: true
         content:
@@ -321,6 +356,22 @@ components:
       schema:
         type: string
         example: beresnev.crypto
+    DomainNamesParameter:
+      name: search
+      in: query
+      description: Keywords that will be used to check domain(s) availability. Can be domain name(s) with or without TLD.
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: array
+        example:
+          - 'fancyfox123.crypto'
+          - 'firstname'
+          - 'domainsforfree1.888'
+        items:
+          type: string
+          example: 'ryan.crypto'
     BlockchainActionIdParameter:
       name: actionId
       in: path
@@ -367,7 +418,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/GeneralNotFoundError'
+            $ref: '#/components/schemas/GeneralResellerNotFound'
     BadRequest:
       description: Bad Request
       content:
@@ -380,8 +431,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/GeneralNotFoundError'
-
   schemas:
+    FingerprintKeyResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Fingerprint public key
+          example: TSveZYwtMdTcHjY9MEPa
     DomainReverseRequest:
       type: object
       properties:
@@ -610,36 +667,44 @@ components:
           externalDocs:
             description: 'Namehashing essentials'
             url: https://docs.unstoppabledomains.com/domain-registry-essentials/namehashing
-
+    Availability:
+      type: object
+      properties:
+        registered:
+          type: boolean
+          description: Information if a domain is registered or not
+          example: false
+        protected:
+          type: boolean
+          description: Information if a domain is protected or not
+          example: false
+        price:
+          description: Domain price in USD Cents. For example $10 = 1000. Might be null if domain is not available for sale.
+          type: integer
+          example: 1000
+          nullable: true
+        availableForFree:
+          description: Whether domain is available for free for the partner
+          type: boolean
+          example: false
+        test:
+          description: Whether domain is in test namespace
+          type: boolean
+          example: true
     DomainAvailabilityResponse:
       type: object
       properties:
         domain:
           $ref: '#/components/schemas/Domain'
         availability:
-          type: object
-          properties:
-            registered:
-              type: boolean
-              description: Information if a domain is registered or not
-              example: false
-            protected:
-              type: boolean
-              description: Information if a domain is protected or not
-              example: false
-            price:
-              description: Domain price in USD Cents. For example $10 = 1000. Might be null if domain is not available for sale.
-              type: integer
-              example: 1000
-              nullable: true
-            availableForFree:
-              description: Whether domain is available for free for the partner
-              type: boolean
-              example: false
-            test:
-              description: Whether domain is in test namespace
-              type: boolean
-              example: true
+          $ref: '#/components/schemas/Availability'
+    DomainsAvailabilityResponse:
+      type: object
+      properties:
+        domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainAvailabilityResponse'
     Blockchain:
       type: string
       description: Which chain is being used to mint a domain
@@ -651,12 +716,12 @@ components:
     BlockchainActionTxType:
       type: string
       description: Type of transaction to be executed
-      enum: 
+      enum:
         - Regular
-        - Meta 
-        - Internal 
-        - System 
-        - Zilliqa 
+        - Meta
+        - Internal
+        - System
+        - Zilliqa
       example: 'Regular'
     GeneralError:
       type: object
@@ -757,7 +822,7 @@ components:
             Gas Compensation Policy
             There are three gas compensation policies that clients can choose, depending on how they want make users send and pay for them.
             * `AlwaysCompensate` - It always assumes using meta transactions. User pays for transactions in USD via stripe payment intent that UD doesn't execute for free (i.e. ETH).
-            * `CompensateFree` - backend will use meta-transactions only for the those transactions that UD executes for free (i.e. MATIC). 
+            * `CompensateFree` - backend will use meta-transactions only for the those transactions that UD executes for free (i.e. MATIC).
             * `NeverCompensate` - If a client wants to both make users send and pay for the transactions themselves, it’ll use this policy. Guarantees maximum privacy
           example: CompensateFree
           enum:
@@ -788,13 +853,12 @@ components:
             * SetReverse - `{remove: boolean}`
             * UpgradeZil - `{ address: string, publicKey: string, signature: string}`
             * Return - none
-            
+
           additionalProperties:
             type: string
           example:
-            records: 
+            records:
               crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-
     BlockchainActionResponse:
       type: object
       properties:
@@ -809,7 +873,7 @@ components:
             - Draft
             - InProgress
             - Completed
-            - Failed 
+            - Failed
         domain:
           $ref: '#/components/schemas/Domain'
         txs:
@@ -852,10 +916,10 @@ components:
                   * Required - the server is awaiting for the client to sign a transaction
                   * WillBeRequired - the server is awaiting for certain operation to be complete. The signature status is expected to go into Required status afterwards, so the client has to wait for signature submission to be ready.
                 enum:
-                  - NotRequired 
-                  - Signed 
-                  - Required 
-                  - WillBeRequired 
+                  - NotRequired
+                  - Signed
+                  - Required
+                  - WillBeRequired
                 example: Required
               messageToSign:
                 type: string
@@ -905,9 +969,6 @@ components:
             nullable: true
             description: Transaction Paramters (only for Zilliqa type)
             example: null
-
-
-
   securitySchemes:
     ApiSecret:
       type: http
@@ -916,4 +977,3 @@ components:
     HttpBasic:
       type: http
       scheme: basic
-
