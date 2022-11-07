@@ -31,15 +31,17 @@ tags:
   - name: actions (blockchain)
     description: Create, sign and check status of blockchain actions
 paths:
-  /domains/:
+  /domains:
     parameters:
       - $ref: '#/components/parameters/DomainNamesParameter'
     get:
+      operationId: GetDomains
       security:
         - ApiSecret: []
       tags:
         - domains
       summary: Check multiple domain names availability
+      description: Check multiple domain names availability
       responses:
         '200':
           description: Successful
@@ -55,9 +57,11 @@ paths:
     parameters:
       - $ref: '#/components/parameters/DomainNameParameter'
     get:
+      operationId: GetDomain
       tags:
         - domains
       summary: Check domain name availability
+      description: Check domain name availability
       responses:
         '200':
           description: Successful
@@ -74,6 +78,7 @@ paths:
       - $ref: '#/components/parameters/SearchDomainParameter'
       - $ref: '#/components/parameters/TldsDomainParameter'
     get:
+      operationId: GetDomainsSuggestions
       tags:
         - domains
       summary: Get domains suggestions
@@ -95,6 +100,7 @@ paths:
       - $ref: '#/components/parameters/SearchDomainParameter'
       - $ref: '#/components/parameters/TldsDomainParameter'
     get:
+      operationId: GetDomainsSuggestionsFree
       tags:
         - domains
       summary: Get free domains suggestions
@@ -113,6 +119,7 @@ paths:
           $ref: '#/components/responses/PartnerNotFound'
   /domains/{domainName}/reserve:
     post:
+      operationId: PostDomainReserve
       summary: Reserve free domain name for period of time
       description: Reserve free domain name for external user identifier. Usually it's a user identifier or email in a partner's system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
       security:
@@ -136,6 +143,7 @@ paths:
           $ref: '#/components/responses/PartnerNotFound'
   /orders:
     post:
+      operationId: PostOrders
       security:
         - {}
         - ApiSecret: []
@@ -173,6 +181,7 @@ paths:
           type: string
           example: -Lm9wiYytgrpf4YCWYv6
     get:
+      operationId: GetOrder
       description: Use this endpoint to pull the status of the order
       summary: Get order status by order number
       tags:
@@ -194,6 +203,7 @@ paths:
                 $ref: '#/components/schemas/GeneralNotFoundError'
   /security/fingerprintjs/keys:
     post:
+      operationId: PostSecurityFingerprintjsKeys
       description: Use this endpoint to fetch Fingerprint public keys
       summary: Get Fingerprint Public Key
       tags:
@@ -207,6 +217,7 @@ paths:
                 $ref: '#/components/schemas/FingerprintKeyResponse'
   /actions:
     get:
+      operationId: GetActions
       summary: Searches for domain actions made
       tags:
         - actions (blockchain)
@@ -274,6 +285,7 @@ paths:
                       $ref: '#/components/schemas/BlockchainActionResponse'
 
     post:
+      operationId: PostActions
       summary: Creates a user request to perform certain action on chain
       description: |
         Receives domain name, operation and parameters that needs to be performed on the blockchain.
@@ -307,6 +319,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/BlockchainActionIdParameter'
     get:
+      operationId: GetAction
       summary: Returns domain action status
       description: |
         Receives domain action id.
@@ -328,10 +341,17 @@ paths:
     parameters:
       - $ref: '#/components/parameters/BlockchainActionIdParameter'
     post:
+      operationId: PostActionSign
       summary: Submits required signatures for a blockchain action
       description: |
-        Receives action id made with other endpoint and the list of signatures required by the action.
-        Verifies signatures and starts the domain action
+        A domain action requires the following to be performed:
+        
+        * every transaction with `signatureStatus: Required` expects 
+          * a `signature` for the case of `Meta` transaction and
+          * `txHash` for the case of meta transaction
+        * Paid stripe intent if present
+
+        This endpoint is designed to let user submit the required data for an action to be executed.
       tags:
         - actions (blockchain)
       requestBody:
@@ -378,7 +398,7 @@ components:
       description: Action ID obtained from `POST /actions` endpoint
       required: true
       schema:
-        type: string
+        type: number
         example: 85530
     SearchDomainParameter:
       name: search
@@ -525,17 +545,7 @@ components:
                 description: Domain recipient email. Email is identifier of Unstoppalbe website account. Email or owner should be provided in order to detect domain received. If email is provided - domain will be linked to email address and could be claimed on chain later.
                 nullable: true
               resolution:
-                description: Mint domain with predefined records. Requires owner field.
-                externalDocs:
-                  description: Domain records reference
-                  url: https://docs.unstoppabledomains.com/domain-registry-essentials/records-reference
-                type: object
-                nullable: true
-                additionalProperties:
-                  type: string
-                example:
-                  crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-                  crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+                $ref: '#/components/schemas/DomainRecords'
               resellerIdentityKey:
                 type: string
                 nullable: true
@@ -564,19 +574,13 @@ components:
                 type: object
                 properties:
                   id:
-                    type: number
-                    example: 101
-                    description: Transaction identifier in Unstoppable system
+                    $ref: '#/components/schemas/TransactionId'
                   blockchain:
                     $ref: '#/components/schemas/Blockchain'
                   networkId:
-                    type: number
-                    example: 1
-                    description: Id of blockchain network (mainnet or testnet)
+                    $ref: '#/components/schemas/NetworkId'
                   hash:
-                    type: string
-                    description: Hash of minting transaction
-                    example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
+                    $ref: '#/components/schemas/TransactionHash'
                   blockExplorerUrl:
                     type: string
                     description: A link to track transaction status
@@ -638,21 +642,9 @@ components:
           example: '0x049aba7510f45BA5b64ea9E658E342F904DB358D'
           nullable: true
         networkId:
-          type: number
-          example: 1
-          description: Id of blockchain network (mainnet or testnet)
+          $ref: '#/components/schemas/NetworkId'
         resolution:
-          description: Mint domain with predefined records. Requires owner field.
-          externalDocs:
-            description: Domain records reference
-            url: https://docs.unstoppabledomains.com/domain-registry-essentials/records-reference
-          type: object
-          nullable: true
-          additionalProperties:
-            type: string
-          example:
-            crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-            crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+          $ref: '#/components/schemas/DomainRecords'
         blockchain:
           $ref: '#/components/schemas/Blockchain'
         freeToClaim:
@@ -713,16 +705,30 @@ components:
         - 'MATIC'
         - 'ETH'
         - 'ZIL'
-    BlockchainActionTxType:
+    TransactionId:
+      type: number
+      example: 2883
+      description: Transaction ID in UD database
+    TransactionHash:
       type: string
-      description: Type of transaction to be executed
-      enum:
-        - Regular
-        - Meta
-        - Internal
-        - System
-        - Zilliqa
-      example: 'Regular'
+      description: Transaction Hash
+      example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
+    NetworkId:
+      type: number
+      example: 1
+      description: Id of blockchain network (mainnet or testnet)
+    DomainRecords:
+      description: Domain crypto records
+      externalDocs:
+        description: Domain records reference
+        url: https://docs.unstoppabledomains.com/domain-registry-essentials/records-reference
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+        crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+
     GeneralError:
       type: object
       required:
@@ -778,6 +784,7 @@ components:
           example: 'Not Found'
         field:
           type: string
+          nullable: true
           description: Estimate error field
           example: null
         value:
@@ -799,6 +806,7 @@ components:
           example: 'Reseller ID not found'
         field:
           type: string
+          nullable: true
           description: Estimate error field
           example: null
         value:
@@ -821,6 +829,7 @@ components:
           description: |
             Gas Compensation Policy
             There are three gas compensation policies that clients can choose, depending on how they want make users send and pay for them.
+
             * `AlwaysCompensate` - It always assumes using meta transactions. User pays for transactions in USD via stripe payment intent that UD doesn't execute for free (i.e. ETH).
             * `CompensateFree` - backend will use meta-transactions only for the those transactions that UD executes for free (i.e. MATIC).
             * `NeverCompensate` - If a client wants to both make users send and pay for the transactions themselves, it’ll use this policy. Guarantees maximum privacy
@@ -829,36 +838,71 @@ components:
             - AlwaysCompensate
             - CompensateFree
             - NeverCompensate
-        action:
-          type: string
-          enum:
-            - UpdateRecords
-            - Transfer
-            - Deposit
-            - Withdraw
-            - SetReverseResolution
-            - UpgradeZil
-            - Return
-          description: Action that needs to be performed on chain
-        parameters:
-          type: object
-          nullable: true
-          description: |
-            Custom list of parameters for the given action
+      anyOf:
+        - description: |
+            `UpdateRecords` action that updates domain crypto records
+          properties:
+            action:
+              type: string
+              enum: [UpdateRecords]
+            parameters:
+              $ref: '#/components/schemas/DomainRecords'
+        - description: |
+            `Return` domain action to Unstoppable Domains to receive the refund
+          properties:
+            action:
+              type: string
+              enum: [Return]
+        - description: |
+            `SetReverse` sets tranasction message signer address as 
+            a reverse address for the domain by default or 
+            removes reverse resolution if `reverse: true` parameter is passed.
+          properties:
+            action:
+              type: string
+              enum: [SetReverse]
+            parameters:
+              type: object
+              properties:
+                remove:
+                  type: boolean
+                  nullable: true
+                  default: false
+        - description: |
+            `Transfer` domain action transfers domain from one wallet address to another
+          properties:
+            action:
+              type: string
+              enum: [Transfer]
+            parameters:
+              type: object
+              properties:
+                to:
+                  type: string
+                resetRecords:
+                  type: boolean
+                  nullable: true
+                  default: true
+        - description: |
+            Actions related to domain bridging between Ethereum and Polygon via Proof of Stake bridge
 
-            * UpdateRecords - `{records: Record<string, string>}`
-            * Transfer - `{to: string, resetRecords?: boolean}`
-            * Deposit - `{resetRecords?: boolean, resetReverse?: boolean}`
-            * Withdraw - `{records?: Record<string, string>, resetRecords?: boolean, resetReverse?: boolean}`
-            * SetReverse - `{remove: boolean}`
-            * UpgradeZil - `{ address: string, publicKey: string, signature: string}`
-            * Return - none
-
-          additionalProperties:
-            type: string
-          example:
-            records:
-              crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
+            * `Withdraw` - move domain from Polygon to Ethereum
+            * `Deposit` - move domain from Ethereum to Polygon
+          properties:
+            action:
+              type: string
+              enum: [Deposit, Withdraw]
+            parameters:
+              type: object
+              properties:
+                resetRecords:
+                  type: boolean
+                  nullable: true
+                  default: false
+                resetReverse:
+                  type: boolean
+                  nullable: true
+                  default: false
     BlockchainActionResponse:
       type: object
       properties:
@@ -882,18 +926,9 @@ components:
             type: object
             properties:
               id: 
-                type: number
-                description: Transaction id given by UD service. Can be used to track status of invidual transactions.
-                example: 2963637
-              type:
-                $ref: '#/components/schemas/BlockchainActionTxType'
+                $ref: '#/components/schemas/TransactionId'
               blockchain:
                 $ref: '#/components/schemas/Blockchain'
-              to:
-                type: string
-                nullable: true
-                description: Contract address to send the transaction to (only for Regular type)
-                example: "0x801452cFAC27e79a11c6b185986fdE09e8637589"
               status:
                 type: string
                 description: Blockchain Action Transaction Status
@@ -902,11 +937,6 @@ components:
                   - Pending
                   - Completed
                   - Failed
-              data:
-                type: string
-                nullable: true
-                description: Encoded transaction body to be sent (only for Regular type)
-                example: "0xb88d4fde00000000000000000000000087348226e747df4cff2b1b1e38a528df405ccd5c000000000000000000000000070e83fced225184e67c86302493fffcdb953f7153b27892177c7f5b476966a119b206227e8155dc86269f932655df96e76d8803000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001"
               signatureStatus:
                 type: string
                 description: |
@@ -921,11 +951,47 @@ components:
                   - Required
                   - WillBeRequired
                 example: Required
-              messageToSign:
-                type: string
-                nullable: true
-                description: Message that needs to be signed (only for Meta type).
-                example: "0xd08e50a6c19462a60cf783f72deb80212708a9a45841db9fe2e49e3647f997cb"
+            anyOf:
+              - description: |
+                  `Regular` transaction type. Formed by UD backend, signed by the user wallet and sent to blockchain by user wallet.
+                properties:
+                  type:
+                    type: string
+                    enum: [Regular]
+                  to:
+                    type: string
+                    nullable: true
+                    description: Contract address to send the transaction to (only for Regular type)
+                    example: "0x801452cFAC27e79a11c6b185986fdE09e8637589"
+                  data:
+                    type: string
+                    nullable: true
+                    description: Encoded transaction body to be sent (only for Regular type)
+                    example: "0xb88d4fde00000000000000000000000087348226e747df4cff2b1b1e38a528df405ccd5c000000000000000000000000070e83fced225184e67c86302493fffcdb953f7153b27892177c7f5b476966a119b206227e8155dc86269f932655df96e76d8803000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001"
+              - description: |
+                  `Meta` transaction type. The user receives `messageToSign` that is expected to be signed using EIP-712.
+                externalDocs:
+                  description: EIP-712
+                  url: https://eips.ethereum.org/EIPS/eip-712#specification
+                properties:
+                  type:
+                    type: string
+                    enum: [Meta]
+                  messageToSign:
+                    type: string
+                    nullable: true
+                    description: Message that needs to be signed (only for Meta type).
+                    example: "0xd08e50a6c19462a60cf783f72deb80212708a9a45841db9fe2e49e3647f997cb"
+              - description: |
+                  `System` and `Internal` transaction types do not expect any action from the user. 
+                  They are signed by 3rd party and are displayed to the user for information and tracking purposes.
+
+                  * `System` - transactions originated to Polygon Proof of Stake bridge
+                  * `Internal` - transacitons made and signed by Unstoppable Domains
+                properties:
+                  type:
+                    type: string
+                    enum: [System, Internal]
         paymentInfo:
           type: 'object'
           nullable: true
@@ -948,27 +1014,34 @@ components:
         type: object
         properties:
           id:
-            type: number
-            example: 2883
-            description: Transaction ID in UD database
-          type:
-            $ref: '#/components/schemas/BlockchainActionTxType'
-          txHash:
-            type: string
-            nullable: true
-            description: Transaction Hash (only for Regular type)
-            example: '0x5588e089b59458b4b34716c3299418e4ea449efbff35c8810f7c189160b1ed57'
-          signature:
-            type: string
-            nullable: true
-            description: Transaction Signature (only for Meta type)
-            example: null
-          txParams:
-            # TODO clarify zilliqa transaction parameters
-            type: object
-            nullable: true
-            description: Transaction Paramters (only for Zilliqa type)
-            example: null
+            $ref: '#/components/schemas/TransactionId'
+        anyOf:
+          - description: "`Regular` transaction type required attributes"
+            properties:
+              type:
+                type: string
+                enum: ["Regular"]
+              txHash:
+                $ref: '#/components/schemas/TransactionHash'
+          - description: "`Meta` transaction type required attributes"
+            properties:
+              type:
+                type: string
+                enum: ["Meta"]
+              signature:
+                type: string
+                description: Transaction Signature (only for Meta type)
+                example: "0x3883828428482472472847284724728472847284728472847247287"
+          - description: "`Zilliqa` transaction type required attributes"
+            properties:
+              type:
+                type: string
+                enum: ["Zilliqa"]
+                example: Zilliqa
+              txParams:
+                # TODO clarify zilliqa transaction parameters
+                type: object
+                description: Transaction Paramters (only for Zilliqa type)
   securitySchemes:
     ApiSecret:
       type: http
