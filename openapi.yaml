@@ -345,8 +345,8 @@ paths:
       summary: Submits required signatures for a blockchain action
       description: |
         A domain action requires the following to be performed:
-        
-        * every transaction with `signatureStatus: Required` expects 
+
+        * every transaction with `signatureStatus: Required` expects
           * a `signature` for the case of `Meta` transaction and
           * `txHash` for the case of meta transaction
         * Paid stripe intent if present
@@ -491,14 +491,12 @@ components:
           type: string
           enum:
             - 'free'
-            - 'coinbase'
             - 'stripe'
         properties:
           description: Additional payment method properties
           anyOf:
             - $ref: '#/components/schemas/FreePaymentProperties'
             - $ref: '#/components/schemas/StripePaymentProperties'
-            - $ref: '#/components/schemas/CoinbasePaymentProperties'
       example:
         method: stripe
         properties:
@@ -506,9 +504,6 @@ components:
     FreePaymentProperties:
       type: object
       description: Properties for the free payment method
-    CoinbasePaymentProperties:
-      type: object
-      description: Properties for the stripe payment method
     StripePaymentProperties:
       type: object
       description: Properties for the stripe payment method
@@ -854,8 +849,8 @@ components:
               type: string
               enum: [Return]
         - description: |
-            `SetReverse` sets tranasction message signer address as 
-            a reverse address for the domain by default or 
+            `SetReverse` sets tranasction message signer address as
+            a reverse address for the domain by default or
             removes reverse resolution if `reverse: true` parameter is passed.
           properties:
             action:
@@ -925,7 +920,7 @@ components:
           items:
             type: object
             properties:
-              id: 
+              id:
                 $ref: '#/components/schemas/TransactionId'
               blockchain:
                 $ref: '#/components/schemas/Blockchain'
@@ -983,7 +978,7 @@ components:
                     description: Message that needs to be signed (only for Meta type).
                     example: "0xd08e50a6c19462a60cf783f72deb80212708a9a45841db9fe2e49e3647f997cb"
               - description: |
-                  `System` and `Internal` transaction types do not expect any action from the user. 
+                  `System` and `Internal` transaction types do not expect any action from the user.
                   They are signed by 3rd party and are displayed to the user for information and tracking purposes.
 
                   * `System` - transactions originated to Polygon Proof of Stake bridge
