@@ -3,7 +3,7 @@ info:
   title: Unstoppable Partner API
   description: 'The Partner API requires you to be authorized to access them. To access the Partner API and integrate it into your application, check our [Set up Partner API Access](https://docs.unstoppabledomains.com/partner/) guide.'
   contact:
-    email: dev@unstoppabledomains.com
+    email: partnerengineering@unstoppabledomains.com
   version: 2.0.0
 externalDocs:
   description: Unstoppable Domains Developer Documentation Portal
