@@ -851,7 +851,7 @@ components:
         - description: |
             `SetReverse` sets tranasction message signer address as
             a reverse address for the domain by default or
-            removes reverse resolution if `reverse: true` parameter is passed.
+            removes reverse resolution if `remove: true` parameter is passed.
           properties:
             action:
               type: string
