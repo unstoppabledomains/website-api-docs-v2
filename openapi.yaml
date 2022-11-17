@@ -453,21 +453,18 @@ components:
             $ref: '#/components/schemas/GeneralNotFoundError'
   schemas:
     FingerprintKeyResponse:
-      type: object
       properties:
         key:
           type: string
           description: Fingerprint public key
           example: TSveZYwtMdTcHjY9MEPa
     DomainReverseRequest:
-      type: object
       properties:
         resellerIdentityKey:
           type: string
           example: 'example@user.com'
           description: 'Unique external identifier of user. Could by ANY string value. Unstoppable will try to match internal and external user id.'
     OrderSecurity:
-      type: object
       description: Additional security parameters. Required if the payment method is 'free'.
       required:
         -  type
@@ -484,7 +481,6 @@ components:
           description: The device identifier. In FingerprintJS, it would be the Visitor ID.
           example: 'i2udKSvRFcN1wOqGLk3J'
     OrderPayment:
-      type: object
       description: Payment type and parameters
       properties:
         method:
@@ -510,7 +506,6 @@ components:
       example:
         tokenId: tok_1FAeVFG8PQyZCUJhJp7emswP
     DomainOrderRequest:
-      type: object
       properties:
         payment:
           $ref: '#/components/schemas/OrderPayment'
@@ -521,7 +516,6 @@ components:
         domains:
           type: array
           items:
-            type: object
             required:
               - 'name'
             properties:
@@ -546,7 +540,6 @@ components:
                 nullable: true
                 description: Field is required if domain was reserved. Value should be the same as it was when domain was reserved.
     DomainOrderResponse:
-      type: object
       properties:
         orderNumber:
           type: string
@@ -561,12 +554,10 @@ components:
         items:
           type: array
           items:
-            type: object
             properties:
               domain:
                 $ref: '#/components/schemas/Domain'
               mintingTransaction:
-                type: object
                 properties:
                   id:
                     $ref: '#/components/schemas/TransactionId'
@@ -598,7 +589,6 @@ components:
         - name: thedomains.888
           price: 200000
       items:
-        type: object
         properties:
           name:
             type: string
@@ -611,7 +601,6 @@ components:
             example: 20000
             nullable: false
     Domain:
-      type: object
       properties:
         id:
           type: number
@@ -655,7 +644,6 @@ components:
             description: 'Namehashing essentials'
             url: https://docs.unstoppabledomains.com/domain-registry-essentials/namehashing
     Availability:
-      type: object
       properties:
         registered:
           type: boolean
@@ -679,14 +667,12 @@ components:
           type: boolean
           example: true
     DomainAvailabilityResponse:
-      type: object
       properties:
         domain:
           $ref: '#/components/schemas/Domain'
         availability:
           $ref: '#/components/schemas/Availability'
     DomainsAvailabilityResponse:
-      type: object
       properties:
         domains:
           type: array
@@ -725,7 +711,6 @@ components:
         crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
 
     GeneralError:
-      type: object
       required:
         - error
       properties:
@@ -737,17 +722,14 @@ components:
           items:
             $ref: '#/components/schemas/BasicError'
     GeneralResellerNotFound:
-      type: object
       properties:
         error:
           $ref: '#/components/schemas/ResellerNotFoundError'
     GeneralNotFoundError:
-      type: object
       properties:
         error:
           $ref: '#/components/schemas/NotFoundError'
     BasicError:
-      type: object
       properties:
         code:
           type: string
@@ -769,7 +751,6 @@ components:
           description: Status code of the response
           example: 400
     NotFoundError:
-      type: object
       properties:
         code:
           type: string
@@ -789,7 +770,6 @@ components:
           type: number
           example: 404
     ResellerNotFoundError:
-      type: object
       properties:
         code:
           type: string
@@ -812,7 +792,6 @@ components:
           description: Status code of the response
           example: 401
     BlockchainActionRequest:
-      type: object
       properties:
         domain:
           type: string
@@ -841,7 +820,9 @@ components:
               type: string
               enum: [UpdateRecords]
             parameters:
-              $ref: '#/components/schemas/DomainRecords'
+              properties:
+                records:
+                  $ref: '#/components/schemas/DomainRecords'
         - description: |
             `Return` domain action to Unstoppable Domains to receive the refund
           properties:
@@ -857,7 +838,6 @@ components:
               type: string
               enum: [SetReverseResolution]
             parameters:
-              type: object
               properties:
                 remove:
                   type: boolean
@@ -870,7 +850,6 @@ components:
               type: string
               enum: [Transfer]
             parameters:
-              type: object
               properties:
                 to:
                   type: string
@@ -888,7 +867,6 @@ components:
               type: string
               enum: [Deposit, Withdraw]
             parameters:
-              type: object
               properties:
                 resetRecords:
                   type: boolean
@@ -899,7 +877,6 @@ components:
                   nullable: true
                   default: false
     BlockchainActionResponse:
-      type: object
       properties:
         id:
           type: number
@@ -918,7 +895,6 @@ components:
         txs:
           type: array
           items:
-            type: object
             properties:
               id:
                 $ref: '#/components/schemas/TransactionId'
@@ -1006,7 +982,6 @@ components:
     BlockchainActionSignRequest:
       type: array
       items:
-        type: object
         properties:
           id:
             $ref: '#/components/schemas/TransactionId'
