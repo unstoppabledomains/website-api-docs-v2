@@ -854,13 +854,13 @@ components:
               type: string
               enum: [Return]
         - description: |
-            `SetReverse` sets tranasction message signer address as 
+            `SetReverseResolution` sets tranasction message signer address as 
             a reverse address for the domain by default or 
             removes reverse resolution if `reverse: true` parameter is passed.
           properties:
             action:
               type: string
-              enum: [SetReverse]
+              enum: [SetReverseResolution]
             parameters:
               type: object
               properties:
@@ -986,8 +986,8 @@ components:
                   `System` and `Internal` transaction types do not expect any action from the user. 
                   They are signed by 3rd party and are displayed to the user for information and tracking purposes.
 
-                  * `System` - transactions originated to Polygon Proof of Stake bridge
-                  * `Internal` - transacitons made and signed by Unstoppable Domains
+                  * `System` - transactions originated to Polygon Proof of Stake bridge, signed and sent by Polygon miners
+                  * `Internal` - transacitons that do not require any special permission to be executed, made and signed by Unstoppable Domains
                 properties:
                   type:
                     type: string
