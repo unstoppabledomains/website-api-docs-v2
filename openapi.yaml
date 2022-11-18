@@ -830,7 +830,7 @@ components:
               type: string
               enum: [Return]
         - description: |
-            `SetReverseResolution` sets tranasction message signer address as
+            `SetReverseResolution` sets transaction message signer address as
             a reverse address for the domain by default or
             removes reverse resolution if `remove: true` parameter is passed.
           properties:
