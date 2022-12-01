@@ -133,7 +133,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DomainReverseRequest'
+              $ref: '#/components/schemas/DomainReserveRequest'
       responses:
         '200':
           description: Valid
@@ -458,7 +458,7 @@ components:
           type: string
           description: Fingerprint public key
           example: TSveZYwtMdTcHjY9MEPa
-    DomainReverseRequest:
+    DomainReserveRequest:
       properties:
         resellerIdentityKey:
           type: string
