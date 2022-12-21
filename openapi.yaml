@@ -367,6 +367,55 @@ paths:
           $ref: '#/components/responses/PartnerNotFound'
         '404':
           $ref: '#/components/responses/ActionNotFound'
+  /actions/web2:
+    post:
+      operationId: PostActionsWeb2
+      summary: Creates a reseller request to perform certain action on chain
+      description: |
+        Receives domain name, operation and parameters that needs to be performed on the blockchain.
+        Example - set 'crypto.ETH.address' record for 'example.crypto'  domain to '0xffff' value
+
+        Returns the list of transactions that will be executed in order to perform that operation.
+      tags:
+        - actions (blockchain)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockchainActionWeb2Request'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainActionResponse'
+        '401':
+          $ref: '#/components/responses/PartnerNotFound'
+        '404':
+          description: Domain Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralNotFoundError'
+  /actions/web2/{actionId}/run:
+    parameters:
+      - $ref: '#/components/parameters/BlockchainActionWeb2IdParameter'
+    post:
+      operationId: PostActionSign
+      summary: Execute action
+      description: This endpoint is designed to let reseller execute action.
+      tags:
+        - actions (blockchain)
+      responses:
+        '200':
+          description: Successful
+        '401':
+          $ref: '#/components/responses/PartnerNotFound'
+        '404':
+          $ref: '#/components/responses/ActionNotFound'
+  
 components:
   parameters:
     DomainNameParameter:
@@ -396,6 +445,14 @@ components:
       name: actionId
       in: path
       description: Action ID obtained from `POST /actions` endpoint
+      required: true
+      schema:
+        type: number
+        example: 85530
+    BlockchainActionWeb2IdParameter:
+      name: actionId
+      in: path
+      description: Action ID obtained from `POST /actions/web2` endpoint
       required: true
       schema:
         type: number
@@ -876,6 +933,39 @@ components:
                   type: boolean
                   nullable: true
                   default: false
+    BlockchainActionWeb2Request:
+      properties:
+        domain:
+          type: string
+          nullable: true
+          example: bogdangusiev.crypto
+          description: Domain name
+      anyOf:
+        - description: |
+            `UpdateRecords` action that updates domain crypto records
+          properties:
+            action:
+              type: string
+              enum: [UpdateRecords]
+            parameters:
+              properties:
+                records:
+                  $ref: '#/components/schemas/DomainRecords'
+        - description: |
+            `Transfer` domain action transfers domain from one wallet address to another
+          properties:
+            action:
+              type: string
+              enum: [Transfer]
+            parameters:
+              properties:
+                to:
+                  type: string
+                resetRecords:
+                  type: boolean
+                  nullable: true
+                  default: true
+    
     BlockchainActionResponse:
       properties:
         id:
