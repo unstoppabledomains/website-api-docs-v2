@@ -370,7 +370,7 @@ paths:
   /actions/web2:
     post:
       operationId: PostActionsWeb2
-      summary: Creates a reseller request to perform certain action on chain
+      summary: Creates and immediately starts certain action on chain by reseller request
       description: |
         Receives domain name, operation and parameters that needs to be performed on the blockchain.
         Example - set 'crypto.ETH.address' record for 'example.crypto'  domain to '0xffff' value
@@ -399,22 +399,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
-  /actions/web2/{actionId}/run:
-    parameters:
-      - $ref: '#/components/parameters/BlockchainActionWeb2IdParameter'
-    post:
-      operationId: PostActionsWeb2Run
-      summary: Execute action
-      description: This endpoint is designed to let reseller execute action.
-      tags:
-        - actions (blockchain)
-      responses:
-        '200':
-          description: Successful
-        '401':
-          $ref: '#/components/responses/PartnerNotFound'
-        '404':
-          $ref: '#/components/responses/ActionNotFound'
   
 components:
   parameters:
