@@ -403,7 +403,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/BlockchainActionWeb2IdParameter'
     post:
-      operationId: PostActionSign
+      operationId: PostActionsWeb2Run
       summary: Execute action
       description: This endpoint is designed to let reseller execute action.
       tags:
