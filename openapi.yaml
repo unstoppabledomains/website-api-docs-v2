@@ -433,14 +433,6 @@ components:
       schema:
         type: number
         example: 85530
-    BlockchainActionWeb2IdParameter:
-      name: actionId
-      in: path
-      description: Action ID obtained from `POST /actions/web2` endpoint
-      required: true
-      schema:
-        type: number
-        example: 85530
     SearchDomainParameter:
       name: search
       in: query
