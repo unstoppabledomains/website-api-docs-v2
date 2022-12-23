@@ -359,6 +359,39 @@ paths:
           $ref: '#/components/responses/PartnerNotFound'
         '404':
           $ref: '#/components/responses/ActionNotFound'
+  /actions/web2:
+    post:
+      operationId: PostActionsWeb2
+      summary: Creates and immediately starts certain action on chain by reseller request
+      description: |
+        Receives domain name, operation and parameters that needs to be performed on the blockchain.
+        Example - set 'crypto.ETH.address' record for 'example.crypto'  domain to '0xffff' value
+
+        Returns the list of transactions that will be executed in order to perform that operation.
+      tags:
+        - actions (blockchain)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockchainActionWeb2Request'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainActionResponse'
+        '401':
+          $ref: '#/components/responses/PartnerNotFound'
+        '404':
+          description: Domain Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralNotFoundError'
+
 components:
   parameters:
     DomainNameParameter:
@@ -518,7 +551,7 @@ components:
               ownerAddress:
                 type: string
                 example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-                description: Domain recipient wallet address. Email or owner should be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address.
+                description: Domain recipient wallet address. Email or owner could be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address. If nothing is provided, the domain will be minted to the reseller's internal custodial wallet.
                 nullable: true
               email:
                 type: string
@@ -680,6 +713,79 @@ components:
         - 'MATIC'
         - 'ETH'
         - 'ZIL'
+    BlockchainActionUpdateRecords:
+      description: |
+            `UpdateRecords` action that updates domain crypto records
+      properties:
+        action:
+          type: string
+          enum: [UpdateRecords]
+        parameters:
+          properties:
+            records:
+              $ref: '#/components/schemas/DomainRecords'
+    BlockchainActionReturn:
+      description: |
+        `Return` domain action to Unstoppable Domains to receive the refund
+      properties:
+        action:
+          type: string
+          enum: [Return]
+    BlockchainActionSetReverseResolution:
+      description: |
+        `SetReverseResolution` sets transaction message signer address as
+        a reverse address for the domain by default or
+        removes reverse resolution if `remove: true` parameter is passed.
+      properties:
+        action:
+          type: string
+          enum: [SetReverseResolution]
+        parameters:
+          properties:
+            remove:
+              type: boolean
+              nullable: true
+              default: false
+    BlockchainActionTransfer:
+      description: |
+        `Transfer` domain action transfers domain from one wallet address to another
+      properties:
+        action:
+          type: string
+          enum: [Transfer]
+        parameters:
+          properties:
+            to:
+              type: string
+            resetRecords:
+              type: boolean
+              nullable: true
+              default: true
+    BlockchainActionBridging:
+      description: |
+        Actions related to domain bridging between Ethereum and Polygon via Proof of Stake bridge
+
+        * `Withdraw` - move domain from Polygon to Ethereum
+        * `Deposit` - move domain from Ethereum to Polygon
+      properties:
+        action:
+          type: string
+          enum: [Deposit, Withdraw]
+        parameters:
+          properties:
+            resetRecords:
+              type: boolean
+              nullable: true
+              default: false
+            resetReverse:
+              type: boolean
+              nullable: true
+              default: false
+    DomainName:
+      type: string
+      example: bogdangusiev.crypto
+      description: Domain name
+      nullable: true
     TransactionId:
       type: number
       example: 2883
@@ -787,10 +893,7 @@ components:
     BlockchainActionRequest:
       properties:
         domain:
-          type: string
-          nullable: true
-          example: bogdangusiev.crypto
-          description: Domain name
+          $ref: '#/components/schemas/DomainName'
         action:
           $ref: '#/components/schemas/BlockchainActionType'
         gasCompensationPolicy:
@@ -808,57 +911,18 @@ components:
             - CompensateFree
             - NeverCompensate
       anyOf:
-        - description: |
-            `UpdateRecords` action that updates domain crypto records
-          properties:
-            parameters:
-              properties:
-                records:
-                  $ref: '#/components/schemas/DomainRecords'
-        - description: |
-            `Return` domain action to Unstoppable Domains to receive the refund
-          properties:
-            action:
-              type: string
-              enum: [ Return ]
-        - description: |
-            `SetReverseResolution` sets transaction message signer address as
-            a reverse address for the domain by default or
-            removes reverse resolution if `remove: true` parameter is passed.
-          properties:
-            parameters:
-              properties:
-                remove:
-                  type: boolean
-                  nullable: true
-                  default: false
-        - description: |
-            `Transfer` domain action transfers domain from one wallet address to another
-          properties:
-            parameters:
-              properties:
-                to:
-                  type: string
-                resetRecords:
-                  type: boolean
-                  nullable: true
-                  default: true
-        - description: |
-            Actions related to domain bridging between Ethereum and Polygon via Proof of Stake bridge
-
-            * `Withdraw` - move domain from Polygon to Ethereum
-            * `Deposit` - move domain from Ethereum to Polygon
-          properties:
-            parameters:
-              properties:
-                resetRecords:
-                  type: boolean
-                  nullable: true
-                  default: false
-                resetReverse:
-                  type: boolean
-                  nullable: true
-                  default: false
+        - $ref: '#/components/schemas/BlockchainActionUpdateRecords'
+        - $ref: '#/components/schemas/BlockchainActionReturn'
+        - $ref: '#/components/schemas/BlockchainActionSetReverseResolution'
+        - $ref: '#/components/schemas/BlockchainActionTransfer'
+        - $ref: '#/components/schemas/BlockchainActionBridging'
+    BlockchainActionWeb2Request:
+      properties:
+        domain:
+          $ref: '#/components/schemas/DomainName'
+      anyOf:
+        - $ref: '#/components/schemas/BlockchainActionUpdateRecords'
+        - $ref: '#/components/schemas/BlockchainActionTransfer'
     BlockchainActionResponse:
       properties:
         id:
