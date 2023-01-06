@@ -572,6 +572,11 @@ components:
                 type: string
                 nullable: true
                 description: Field is required if domain was reserved. Value should be the same as it was when domain was reserved.
+        campaignCode:
+          type: string
+          description: The name of a marketing campaign to associate the Partner API Order request with.
+          example: 'Home Depot Web3 Campaign'
+          nullable: true
     DomainOrderResponse:
       properties:
         orderNumber:
