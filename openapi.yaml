@@ -151,9 +151,9 @@ paths:
         - orders
       summary: Buy a domain or claim for free
       description:
-        This API endpoint is used for buying domains from UD. The blockchain needs time before a transaction is mined. In rare cases, it is possible for someone to front run your purchase, which would result in an order being cancelled. We expect this to happen in less than 1 out of 10000 cases. Please make sure you are using the 'Order Status' endpoint and wait until the transaction is mined.
+        "This API endpoint is used for buying domains from UD. The blockchain needs time before a transaction is mined. In rare cases, it is possible for someone to front run your purchase, which would result in an order being cancelled. We expect this to happen in less than 1 out of 10000 cases. Please make sure you are using the 'Order Status' endpoint and wait until the transaction is mined.
 
-        Endpoint requires either email or owner address. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)
+        Endpoint requires one of the following: email, owner address, or useCustodialWallet. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. If ownerAddress is not provided and useCustodialWallet = true, the domain will be minted to the reseller's custodial wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)."
       requestBody:
         required: true
         content:
@@ -559,8 +559,12 @@ components:
               ownerAddress:
                 type: string
                 example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-                description: Domain recipient wallet address. Email or owner could be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address. If nothing is provided, the domain will be minted to the reseller's internal custodial wallet.
+                description: Domain recipient wallet address. Email or owner could be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address. If ownerAddress is not provided and useCustodialWallet = true, the domain will be minted to the reseller's custodial wallet.
                 nullable: true
+              useCustodialWallet:
+                type: boolean
+                default: false
+                description: Explicitly indicates that the domain should be minted on a custodial wallet. If true - ownerAddress must be null, if false - ownerAddress must be provided
               email:
                 type: string
                 example: matt@unstoppabledomains.com
