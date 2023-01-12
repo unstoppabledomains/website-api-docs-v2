@@ -559,7 +559,7 @@ components:
               ownerAddress:
                 type: string
                 example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-                description: Domain recipient wallet address. Email or owner could be provided in order to detect domain receiver. If owner is provided - domain will be minted to the owner address. If ownerAddress is not provided and useCustodialWallet = true, the domain will be minted to the reseller's custodial wallet.
+                description:  Owner wallet address a domain will be minted for. Can not be specified together with email or useCustodialWallet.
                 nullable: true
               useCustodialWallet:
                 type: boolean
