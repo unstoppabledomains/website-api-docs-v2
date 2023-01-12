@@ -153,7 +153,7 @@ paths:
       description:
         "This API endpoint is used for buying domains from UD. The blockchain needs time before a transaction is mined. In rare cases, it is possible for someone to front run your purchase, which would result in an order being cancelled. We expect this to happen in less than 1 out of 10000 cases. Please make sure you are using the 'Order Status' endpoint and wait until the transaction is mined.
 
-        Endpoint requires one of the following: email, owner address, or useCustodialWallet. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. If ownerAddress is not provided and useCustodialWallet = true, the domain will be minted to the reseller's custodial wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)."
+        Endpoint requires one of the following: email, owner address, or useResellerCustodialWallet. If email is provided - domain will be linked to Unstoppable website account. If owner address is provided - domain will be minted right into crypto wallet. If ownerAddress is not provided and useResellerCustodialWallet = true, the domain will be minted to the reseller's custodial wallet. Optionally user can specify domain records that will be added to the domain once it's minted (i.e. if owner address is provided)."
       requestBody:
         required: true
         content:
@@ -559,9 +559,9 @@ components:
               ownerAddress:
                 type: string
                 example: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
-                description:  Owner wallet address a domain will be minted for. Can not be specified together with email or useCustodialWallet.
+                description:  Owner wallet address a domain will be minted for. Can not be specified together with email or useResellerCustodialWallet.
                 nullable: true
-              useCustodialWallet:
+              useResellerCustodialWallet:
                 type: boolean
                 default: false
                 description: Explicitly indicates that the domain should be minted on the reseller's custodial wallet. If true - ownerAddress must be null, if false - ownerAddress must be provided.
