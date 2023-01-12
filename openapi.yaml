@@ -564,7 +564,7 @@ components:
               useCustodialWallet:
                 type: boolean
                 default: false
-                description: Explicitly indicates that the domain should be minted on a custodial wallet. If true - ownerAddress must be null, if false - ownerAddress must be provided
+                description: Explicitly indicates that the domain should be minted on the reseller's custodial wallet. If true - ownerAddress must be null, if false - ownerAddress must be provided.
               email:
                 type: string
                 example: matt@unstoppabledomains.com
