@@ -37,7 +37,7 @@ paths:
     get:
       operationId: GetDomains
       security:
-        - ApiSecret: []
+        - ApiSecret: [ ]
       tags:
         - domains
       summary: Check multiple domain names availability
@@ -123,7 +123,7 @@ paths:
       summary: Reserve free domain name for period of time
       description: Reserve free domain name for external user identifier. Usually it's a user identifier or email in a partner's system. Domain name becomes unavailable for selling and claiming to anyone except identity that reserved the domain. Only one domain could be reserved per resellerIdentityKey. Reserve time is 168 hours.
       security:
-        - ApiSecret: []
+        - ApiSecret: [ ]
       parameters:
         - $ref: '#/components/parameters/DomainNameParameter'
       tags:
@@ -145,8 +145,8 @@ paths:
     post:
       operationId: PostOrders
       security:
-        - {}
-        - ApiSecret: []
+        - { }
+        - ApiSecret: [ ]
       tags:
         - orders
       summary: Buy a domain or claim for free
@@ -274,15 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'object'
-                properties:
-                  count:
-                    type: number
-                    example: 1
-                  actions:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/BlockchainActionResponse'
+                $ref: '#/components/schemas/BlockchainActionListResponse'
 
     post:
       operationId: PostActions
@@ -399,7 +391,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralNotFoundError'
-  
+
 components:
   parameters:
     DomainNameParameter:
@@ -500,8 +492,8 @@ components:
     OrderSecurity:
       description: Additional security parameters. Required if the payment method is 'free'.
       required:
-        -  type
-        -  identifier
+        - type
+        - identifier
       properties:
         type:
           type: string
@@ -664,6 +656,8 @@ components:
           $ref: '#/components/schemas/DomainRecords'
         blockchain:
           $ref: '#/components/schemas/Blockchain'
+        projectedBlockchain:
+          $ref: '#/components/schemas/Blockchain'
         freeToClaim:
           type: boolean
           example: true
@@ -815,7 +809,6 @@ components:
       example:
         crypto.ETH.address: '0x6EC0DEeD30605Bcd19342f3c30201DB263291589'
         crypto.BTC.address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
-
     GeneralError:
       required:
         - error
@@ -901,6 +894,8 @@ components:
       properties:
         domain:
           $ref: '#/components/schemas/DomainName'
+        action:
+          $ref: '#/components/schemas/BlockchainActionType'
         gasCompensationPolicy:
           type: string
           description: |
@@ -931,90 +926,17 @@ components:
     BlockchainActionResponse:
       properties:
         id:
-          type: number
-          description: Assigned id. Can be used to submit signature or check status later
-          example: 12882
+          $ref: '#/components/schemas/BlockchainActionId'
+        action:
+          $ref: '#/components/schemas/BlockchainActionType'
         status:
-          type: string
-          description: Blockchain Action Status
-          enum:
-            - Draft
-            - InProgress
-            - Completed
-            - Failed
+          $ref: '#/components/schemas/BlockchainActionStatus'
         domain:
           $ref: '#/components/schemas/Domain'
         txs:
           type: array
           items:
-            properties:
-              id:
-                $ref: '#/components/schemas/TransactionId'
-              blockchain:
-                $ref: '#/components/schemas/Blockchain'
-              status:
-                type: string
-                description: Blockchain Action Transaction Status
-                enum:
-                  - Draft
-                  - Pending
-                  - Completed
-                  - Failed
-              signatureStatus:
-                type: string
-                description: |
-                  A state of transactions signature
-                  * NotRequired - the server doesn't require the client to sign this transaction
-                  * Signed - the client has already signed a transaction
-                  * Required - the server is awaiting for the client to sign a transaction
-                  * WillBeRequired - the server is awaiting for certain operation to be complete. The signature status is expected to go into Required status afterwards, so the client has to wait for signature submission to be ready.
-                enum:
-                  - NotRequired
-                  - Signed
-                  - Required
-                  - WillBeRequired
-                example: Required
-            anyOf:
-              - description: |
-                  `Regular` transaction type. Formed by UD backend, signed by the user wallet and sent to blockchain by user wallet.
-                properties:
-                  type:
-                    type: string
-                    enum: [Regular]
-                  to:
-                    type: string
-                    nullable: true
-                    description: Contract address to send the transaction to (only for Regular type)
-                    example: "0x801452cFAC27e79a11c6b185986fdE09e8637589"
-                  data:
-                    type: string
-                    nullable: true
-                    description: Encoded transaction body to be sent (only for Regular type)
-                    example: "0xb88d4fde00000000000000000000000087348226e747df4cff2b1b1e38a528df405ccd5c000000000000000000000000070e83fced225184e67c86302493fffcdb953f7153b27892177c7f5b476966a119b206227e8155dc86269f932655df96e76d8803000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001"
-              - description: |
-                  `Meta` transaction type. The user receives `messageToSign` that is expected to be signed using EIP-712.
-                externalDocs:
-                  description: EIP-712
-                  url: https://eips.ethereum.org/EIPS/eip-712#specification
-                properties:
-                  type:
-                    type: string
-                    enum: [Meta]
-                  messageToSign:
-                    type: string
-                    nullable: true
-                    description: Message that needs to be signed (only for Meta type).
-                    example: "0xd08e50a6c19462a60cf783f72deb80212708a9a45841db9fe2e49e3647f997cb"
-              - description: |
-                  `System` and `Internal` transaction types do not expect any action from the user.
-                  They are signed by 3rd party and are displayed to the user for information and tracking purposes.
-
-                  * `System` - transactions originated to Polygon Proof of Stake bridge, signed and sent by Polygon miners
-                  * `Internal` - transacitons that do not require any special permission to be executed, made and signed by Unstoppable Domains
-                properties:
-                  type:
-                    type: string
-                    enum: [System, Internal]
+            $ref: '#/components/schemas/BlockchainActionTx'
         paymentInfo:
           type: 'object'
           nullable: true
@@ -1024,13 +946,37 @@ components:
               type: 'string'
               description: 'Stripe Intent Id'
               example: '3882828'
-            stripeSecret:
+            clientSecret:
               type: string
               description: Stripe Intent Secret
             totalAmount:
               type: number
               example: 424
               description: Total Amount to be paid in USD
+    BlockchainActionListResponse:
+      type: 'object'
+      properties:
+        count:
+          type: number
+          example: 1
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/BlockchainActionId'
+              domainName:
+                type: string
+                example: beresnev.crypto
+              action:
+                $ref: '#/components/schemas/BlockchainActionType'
+              status:
+                $ref: '#/components/schemas/BlockchainActionStatus'
+              txs:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlockchainActionTx'
     BlockchainActionSignRequest:
       type: array
       items:
@@ -1042,28 +988,124 @@ components:
             properties:
               type:
                 type: string
-                enum: ["Regular"]
+                enum: [ "Regular" ]
               txHash:
                 $ref: '#/components/schemas/TransactionHash'
           - description: "`Meta` transaction type required attributes"
             properties:
               type:
                 type: string
-                enum: ["Meta"]
+                enum: [ "Meta" ]
               signature:
                 type: string
-                description: Transaction Signature (only for Meta type)
+                description: Transaction Signature (Meta transactions only)
                 example: "0x3883828428482472472847284724728472847284728472847247287"
           - description: "`Zilliqa` transaction type required attributes"
             properties:
               type:
                 type: string
-                enum: ["Zilliqa"]
+                enum: [ "Zilliqa" ]
                 example: Zilliqa
               txParams:
-                # TODO clarify zilliqa transaction parameters
                 type: object
-                description: Transaction Paramters (only for Zilliqa type)
+                description: Transaction Parameters (Zilliqa transaction only)
+                properties:
+                  signature:
+                    type: string
+                    description: Zilliqa TX Signature
+                    example: "c6900ddea24df08447284e709ccb3c4c95cdb1645231a7bc4a362558fe39dc3b91610927613619ef6f01c53a2a497e6e41fc1b956e554a17db104790ef0c4dd2"
+    BlockchainActionTx:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/TransactionId'
+        blockchain:
+          $ref: '#/components/schemas/Blockchain'
+        status:
+          type: string
+          description: Blockchain Action Transaction Status
+          enum:
+            - Draft
+            - Pending
+            - Completed
+            - Failed
+        signatureStatus:
+          type: string
+          description: |
+            A state of transactions signature
+            * NotRequired - the server doesn't require the client to sign this transaction
+            * Signed - the client has already signed a transaction
+            * Required - the server is awaiting for the client to sign a transaction
+            * WillBeRequired - the server is awaiting for certain operation to be complete. The signature status is expected to go into Required status afterwards, so the client has to wait for signature submission to be ready.
+          enum:
+            - NotRequired
+            - Signed
+            - Required
+            - WillBeRequired
+          example: Required
+      anyOf:
+        - description: |
+            `Regular` transaction type. Formed by UD backend, signed by the user wallet and sent to blockchain by user wallet.
+          properties:
+            type:
+              type: string
+              enum: [ Regular ]
+            to:
+              type: string
+              nullable: true
+              description: Contract address to send the transaction to (only for Regular type)
+              example: "0x801452cFAC27e79a11c6b185986fdE09e8637589"
+            data:
+              type: string
+              nullable: true
+              description: Encoded transaction body to be sent (only for Regular type)
+              example: "0xb88d4fde00000000000000000000000087348226e747df4cff2b1b1e38a528df405ccd5c000000000000000000000000070e83fced225184e67c86302493fffcdb953f7153b27892177c7f5b476966a119b206227e8155dc86269f932655df96e76d8803000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001"
+        - description: |
+            `Meta` transaction type. The user receives `messageToSign` that is expected to be signed using EIP-712.
+          externalDocs:
+            description: EIP-712
+            url: https://eips.ethereum.org/EIPS/eip-712#specification
+          properties:
+            type:
+              type: string
+              enum: [ Meta ]
+            messageToSign:
+              type: string
+              nullable: true
+              description: Message that needs to be signed (only for Meta type).
+              example: "0xd08e50a6c19462a60cf783f72deb80212708a9a45841db9fe2e49e3647f997cb"
+        - description: |
+            `System` and `Internal` transaction types do not expect any action from the user.
+            They are signed by 3rd party and are displayed to the user for information and tracking purposes.
+
+            * `System` - transactions originated to Polygon Proof of Stake bridge, signed and sent by Polygon miners
+            * `Internal` - transacitons that do not require any special permission to be executed, made and signed by Unstoppable Domains
+          properties:
+            type:
+              type: string
+              enum: [ System, Internal ]
+    BlockchainActionStatus:
+      type: string
+      description: Blockchain Action Status
+      enum:
+        - Draft
+        - InProgress
+        - Completed
+        - Failed
+    BlockchainActionId:
+      type: number
+      description: Assigned id. Can be used to submit signature or check status later
+      example: 12882
+    BlockchainActionType:
+      type: string
+      enum:
+        - UpdateRecords
+        - Transfer
+        - Deposit
+        - Withdraw
+        - SetReverseResolution
+        - Return
+        - DotCoinReturn
   securitySchemes:
     ApiSecret:
       type: http
